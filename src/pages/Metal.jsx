@@ -48,9 +48,10 @@ const Metal = () => {
   const { setRightButton } = useHeaderRightButton();
   const [data, setData] = useState([]); // Placeholder for metal data
   const [statusLoadingId, setStatusLoadingId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Placeholder handlers
-  const handleEdit = (row) => {
+  const handleEdit = () => {
     setShowModal(true);
   };
   const handleToggleStatus = (row) => {
@@ -63,12 +64,15 @@ const Metal = () => {
     setRightButton(<span onClick={() => setShowModal(true)}>Add Metal</span>);
     // Fetch metal types on mount
     const fetchMetals = async () => {
+      setLoading(true);
       try {
         const metals = await getMetalTypes();
         console.log('API metals response:', metals);
         setData(metals.Data || []);
       } catch (error) {
         console.error('Failed to fetch metal types:', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMetals();
@@ -77,7 +81,7 @@ const Metal = () => {
 
   return (
     <>
-      <Table columns={getColumns(handleEdit, handleToggleStatus, statusLoadingId)} data={data} />
+      <Table columns={getColumns(handleEdit, handleToggleStatus, statusLoadingId)} data={data} loading={loading} />
       {showModal && <AddMetalModal onClose={() => setShowModal(false)} />}
     </>
   );
