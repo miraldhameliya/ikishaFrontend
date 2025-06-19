@@ -14,3 +14,4 @@ export const SIZE_LIST = '/admin/size';
 export const SIZE_CREATE = `/admin/size/create`
 export const SIZE_UPDATE = `/admin/size/update`
 export const METAL_TYPE_CREATE = '/admin/metaltypes/create';
+export const METAL_TYPE_LIST = '/admin/metaltypes';

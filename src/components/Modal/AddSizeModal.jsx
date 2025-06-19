@@ -27,7 +27,7 @@ const AddSizeModal = ({ onClose, onSuccess, sizeData }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-20 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-20 backdrop-blur-sm">
       <div className="bg-[#F5F7FA] rounded-2xl p-8 min-w-[320px] sm:min-w-[400px] md:min-w-[500px] shadow-2xl flex flex-col gap-6">
         <div className="text-[20px] font-semibold mb-2 text-gray-900">{sizeData ? 'Edit Size' : 'Add Size'}</div>
         <div>

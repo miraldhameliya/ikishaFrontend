@@ -79,17 +79,21 @@ const saveButtonStyle = {
   cursor: 'pointer',
 };
 
-const AddMetalModal = ({ onClose }) => {
-  const [shape, setShape] = useState('');
+const AddMetalModal = ({ onClose, metalData, onSave }) => {
+  const [shape, setShape] = useState(metalData?.name || '');
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    setShape(metalData?.name || '');
+  }, [metalData]);
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      await createMetalType({ name: shape });
+      await onSave(shape);
       onClose();
     } catch (error) {
-      alert('Failed to create metal type.');
+      alert('Failed to save metal type.');
     } finally {
       setLoading(false);
     }
@@ -98,20 +102,20 @@ const AddMetalModal = ({ onClose }) => {
   return (
     <div style={modalOverlayStyle}>
       <div style={modalStyle}>
-        <div style={titleStyle}>Add Metal Type</div>
+        <div style={titleStyle}>{metalData ? 'Edit Metal Type' : 'Add Metal Type'}</div>
         <div>
           <div style={labelStyle}>Metal Type</div>
           <input
             style={inputStyle}
             type="text"
-            placeholder="Enter diamond shape"
+            placeholder="Enter metal type"
             value={shape}
             onChange={e => setShape(e.target.value)}
           />
         </div>
         <div style={buttonRowStyle}>
           <button style={cancelButtonStyle} onClick={onClose}>Cancel</button>
-          <button style={saveButtonStyle} onClick={handleSave} disabled={loading}>{loading ? 'Saving...' : 'Save'}</button>
+          <button style={saveButtonStyle} onClick={handleSave} disabled={loading}>{loading ? (metalData ? 'Updating...' : 'Saving...') : (metalData ? 'Update' : 'Save')}</button>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
+import { getMetalTypes } from '../redux/services/metalService';
 
 import Table from '../components/Table';
 import AddMetalModal from '../components/Modal/AddMetalModal';
@@ -7,7 +8,7 @@ import edit from '../assets/icon/edit.png';
 
 
 const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
-    { key: 'size', title: 'Metal Type' },
+    { key: 'name', title: 'Metal Type' },
     {
       key: 'status',
       title: 'Status',
@@ -60,6 +61,17 @@ const Metal = () => {
 
   useEffect(() => {
     setRightButton(<span onClick={() => setShowModal(true)}>Add Metal</span>);
+    // Fetch metal types on mount
+    const fetchMetals = async () => {
+      try {
+        const metals = await getMetalTypes();
+        console.log('API metals response:', metals);
+        setData(metals.Data || []);
+      } catch (error) {
+        console.error('Failed to fetch metal types:', error);
+      }
+    };
+    fetchMetals();
     return () => setRightButton(null); // Clean up on unmount
   }, [setShowModal, setRightButton]);
 
@@ -72,3 +84,4 @@ const Metal = () => {
 };
 
 export default Metal;
+
