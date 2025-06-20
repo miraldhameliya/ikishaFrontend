@@ -11,6 +11,7 @@ import DiamondClarity from './pages/DiamondClarity';
 import Metal from './pages/Metal';
 import Size from './pages/Size';
 import { useState } from 'react';
+import Product from './pages/Product';
 
 const routeList = [
   { name: 'Category', path: '/category' },
@@ -31,14 +32,15 @@ function AppContent() {
     <HeaderRightButtonProvider>
       {!shouldHideHeader && <Header routeList={routeList} />}
       <Routes>
-        <Route path="/login" element={<Login/>} />
+        <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/category" element={<Category />} />
         <Route path="/diamond" element={<Diamond />} />
-        <Route path='/diamond-clarity' element={<DiamondClarity/>}/>
-        <Route path='/metal' element={<Metal/>}/>
-        <Route path='/size' element={<Size/>}/>
+        <Route path='/product' element={<Product />} />
+        <Route path='/diamond-clarity' element={<DiamondClarity />} />
+        <Route path='/metal' element={<Metal />} />
+        <Route path='/size' element={<Size />} />
 
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

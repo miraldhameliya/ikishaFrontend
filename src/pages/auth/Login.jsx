@@ -27,7 +27,7 @@ function Login() {
 
     try {
       const response = await LoginApi(formData);
-      console.log('Login response:', response.data); // Debug: print the login API response
+      console.log('Login response:', response.data); 
       
       if (response.data.IsSuccess) {
         localStorage.setItem('token', response.data.Data);

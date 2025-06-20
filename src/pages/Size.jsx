@@ -3,7 +3,7 @@ import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 
 import Table from '../components/Table';
 import AddSizeModal from '../components/Modal/AddSizeModal';
-import { fetchSizes, updateSize } from '../redux/services/sizeService';
+import { fetchSizes, updateSize, updateSizeStatus } from '../redux/services/sizeService';
 import edit from '../assets/icon/edit.png'
 
 const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
@@ -13,34 +13,34 @@ const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
     title: 'Status',
     align: 'center',
     render: (row) => (
-     
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={row.status}
-            onChange={() => handleToggleStatus(row)}
-            disabled={statusLoadingId === row._id}
-            className="sr-only peer"
-          />
-          <div className="w-8 h-4 bg-gray-200 rounded-full peer-checked:bg-green-900 transition-colors duration-200"></div>
-          <div className={`absolute left-0.5 top-0.5 w-3 h-3 bg-white border border-gray-300 rounded-full shadow-md transform transition-transform duration-200 ${row.status ? 'translate-x-4' : ''}`}></div>
-          {/* <div className="w-10 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-400 rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
+
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          checked={row.status}
+          onChange={() => handleToggleStatus(row)}
+          disabled={statusLoadingId === row._id}
+          className="sr-only peer"
+        />
+        <div className="w-8 h-4 bg-gray-200 rounded-full peer-checked:bg-green-900 transition-colors duration-200"></div>
+        <div className={`absolute left-0.5 top-0.5 w-3 h-3 bg-white border border-gray-300 rounded-full shadow-md transform transition-transform duration-200 ${row.status ? 'translate-x-4' : ''}`}></div>
+        {/* <div className="w-10 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-400 rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
           <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-4"></div> */}
-        </label>
-        
-    
+      </label>
+
+
     ),
   },
   {
     key: 'action',
     title: 'Action',
-    align: 'right',
+    align: 'center',
     render: (row) => (
-  
-        <button className="hover:scale-105 transition-transform" onClick={() => handleEdit(row)}>
-          <img src={edit} alt='edit' className='w-6 h-6' />
-        </button>
- 
+
+      <button className="hover:scale-105 transition-transform" onClick={() => handleEdit(row)}>
+        <img src={edit} alt='edit' className='w-8 h-8 ' />
+      </button>
+
     ),
   },
 ];
@@ -75,12 +75,13 @@ const Size = () => {
       setPage(prev => prev + 1);
     }
   };
-  
+
   useEffect(() => {
     if (page > 1) {
       loadSizes(page);
     }
   }, [page]);
+
   useEffect(() => {
     setRightButton(
       <span
@@ -107,7 +108,7 @@ const Size = () => {
     setStatusLoadingId(row._id);
     setStatusError('');
     try {
-      await updateSize({ ...row, status: !row.status });
+      await updateSizeStatus(row._id);
       loadSizes();
     } catch (error) {
       console.log(error);

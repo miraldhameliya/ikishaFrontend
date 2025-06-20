@@ -25,7 +25,7 @@ function Table({ columns, data, rowKey, loading, onBodyScroll }) {
         <table className="min-w-full table-fixed border-collapse">
           <thead className="sticky top-0 bg-[#c3c7bc] z-10">
             <tr>
-              {columns.map((col, idx) => (
+              {columns?.map((col, idx) => (
                 <th
                   key={col.key}
                   className={`
@@ -48,7 +48,7 @@ function Table({ columns, data, rowKey, loading, onBodyScroll }) {
                 </td>
               </tr>
             ) : (
-              data.map((row, i) => (
+              data?.map((row, i) => (
                 <tr
                   key={row[rowKey]}
                   className={i % 2 === 0 ? 'bg-[#F3F4F6]' : 'bg-white'}

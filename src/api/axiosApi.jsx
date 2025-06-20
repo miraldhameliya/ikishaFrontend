@@ -2,12 +2,8 @@ import axios from "axios";
 import { baseUrl } from "./baseUrl";
 
 export const apiInstance = axios.create({
-    baseURL: baseUrl,
-    headers: {
-        'Content-Type': 'application/json',
-    }
-    
-    
+    baseURL: baseUrl
+    // Removed default headers to allow FormData to set Content-Type automatically
 });
 console.log(`API instance created with base URL: ${baseUrl}`);
 

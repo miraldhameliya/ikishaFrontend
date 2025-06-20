@@ -1,109 +1,63 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createDiamondClarity } from '../../redux/services/diamondClarityservice';
 
-const modalOverlayStyle = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100vw',
-  height: '100vh',
-  background: 'rgba(0, 0, 0, 0.2)',
-  backdropFilter: 'blur(4px)',
-  zIndex: 1000,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};
+const AddDiamondClarityModal = ({ onClose, diamondClarityData, onSuccess }) => {
+  const [clarity, setClarity] = useState(diamondClarityData?.grade || '');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-const modalStyle = {
-  background: '#F5F7FA',
-  borderRadius: '24px',
-  padding: '32px',
-  minWidth: '500px',
-  boxShadow: '0 4px 32px rgba(0,0,0,0.10)',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '24px',
-};
+  useEffect(() => {
+    setClarity(diamondClarityData?.grade || '');
+  }, [diamondClarityData]);
 
-const titleStyle = {
-  fontSize: '20px',
-  fontWeight: 600,
-  marginBottom: '8px',
-  color: '#222',
-};
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const payload = { grade: clarity, _id: diamondClarityData?._id || '' };
+      await createDiamondClarity(payload);
+      if (typeof onSuccess === 'function') onSuccess();
+      onClose();
 
-const labelStyle = {
-  fontSize: '15px',
-  fontWeight: 500,
-  marginBottom: '6px',
-  color: '#222',
-};
+    } catch (error) {
+      const apiMsg = error?.response?.data?.Message || error?.message || 'Failed to save diamond clarity.';
+      setError(apiMsg);
 
-const inputStyle = {
-  width: '100%',
-  padding: '10px 12px',
-  borderRadius: '6px',
-  border: '1px solid #D1D5DB',
-  fontSize: '15px',
-  marginBottom: '16px',
-  background: '#fff',
-};
-
-const buttonRowStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  gap: '16px',
-};
-
-const cancelButtonStyle = {
-  padding: '8px 28px',
-  borderRadius: '8px',
-  border: 'none',
-  background: '#F5F7FA',
-  color: '#4B5563',
-  fontWeight: 500,
-  fontSize: '15px',
-  cursor: 'pointer',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-};
-
-const saveButtonStyle = {
-  padding: '8px 28px',
-  borderRadius: '8px',
-  border: 'none',
-  background: '#263312',
-  color: '#fff',
-  fontWeight: 500,
-  fontSize: '15px',
-  cursor: 'pointer',
-};
-
-const AddDiamondClarityModal = ({ onClose }) => {
-  const [shape, setShape] = useState('');
-
-  const handleSave = () => {
-    // TODO: handle save logic
-    onClose();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={modalOverlayStyle}>
-      <div style={modalStyle}>
-        <div style={titleStyle}>Add Shape</div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-20 backdrop-blur-sm">
+      <div className="bg-[#E6EAEE] rounded-2xl p-8 min-w-[320px] sm:min-w-[400px] md:min-w-[500px] shadow-2xl flex flex-col gap-6">
+        <div className="text-[20px] font-semibold mb-2 text-[#212121]">{diamondClarityData ? 'Edit Diamond Clarity Type' : 'Add Diamond Clarity Type'}</div>
         <div>
-          <div style={labelStyle}>Diamond Shape</div>
+          <div className="text-[15px] font-medium mb-1 text-[#475569]">Diamond Clarity Type</div>
           <input
-            style={inputStyle}
+            className="w-full px-3 text-[#A0A8BB] py-2 rounded-md  border-gray-300 text-[15px] mb-4 bg-white focus:outline-none  focus:ring-[#263312]"
             type="text"
-            placeholder="Enter diamond shape"
-            value={shape}
-            onChange={e => setShape(e.target.value)}
+            placeholder="Enter diamond clarity type"
+            value={clarity}
+            onChange={e => setClarity(e.target.value)}
           />
         </div>
-        <div style={buttonRowStyle}>
-          <button style={cancelButtonStyle} onClick={onClose}>Cancel</button>
-          <button style={saveButtonStyle} onClick={handleSave}>Save</button>
+        <div className="flex justify-center gap-4 mt-2">
+          <button
+            className="px-7 py-2 rounded-lg bg-[#F5F7FA] text-gray-600 font-medium text-[15px] shadow hover:bg-gray-200 border border-gray-200"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-7 py-2 rounded-lg bg-[#303F26] text-white font-medium text-[15px] shadow hover:bg-[#1a220d] "
+            onClick={handleSave}
+            disabled={loading || !clarity}
+          >
+            {loading ? (diamondClarityData ? 'Saving...' : 'Saving...') : (diamondClarityData ? 'Update' : 'Save')}
+          </button>
         </div>
+        {error && <div className="text-red-600 text-center mt-2">{error}</div>}
       </div>
     </div>
   );
