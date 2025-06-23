@@ -12,6 +12,7 @@ import Metal from './pages/Metal';
 import Size from './pages/Size';
 import { useState } from 'react';
 import Product from './pages/Product';
+import AddProduct from './pages/AddProduct';
 
 const routeList = [
   { name: 'Category', path: '/category' },
@@ -38,6 +39,7 @@ function AppContent() {
         <Route path="/category" element={<Category />} />
         <Route path="/diamond" element={<Diamond />} />
         <Route path='/product' element={<Product />} />
+        <Route path='/add-product' element={<AddProduct />} />
         <Route path='/diamond-clarity' element={<DiamondClarity />} />
         <Route path='/metal' element={<Metal />} />
         <Route path='/size' element={<Size />} />

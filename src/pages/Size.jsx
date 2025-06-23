@@ -3,7 +3,7 @@ import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 
 import Table from '../components/Table';
 import AddSizeModal from '../components/Modal/AddSizeModal';
-import { fetchSizes, updateSize, updateSizeStatus } from '../redux/services/sizeService';
+import { fetchSizes, updateSizeStatus } from '../redux/services/sizeService';
 import edit from '../assets/icon/edit.png'
 
 const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [

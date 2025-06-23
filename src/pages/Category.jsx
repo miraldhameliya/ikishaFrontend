@@ -1,12 +1,8 @@
 import Earing from '../assets/icon/earing.png';
-import Chain from '../assets/icon/chain.png';
-import Ring from '../assets/icon/ring.png';
-import bracelet from '../assets/icon/necklace.png'; // Consider renaming if you have a bracelet image
-import nosepin from '../assets/icon/nosepin.png';
+
 import edit from '../assets/icon/edited.png';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { FaChevronRight } from "react-icons/fa";
-import Header from '../components/Header';
 import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 import AddCategoryModel from '../components/Modal/AddCategoryModel';
 import { fetchCategory, updateCategoryStatus } from '../redux/services/categoryService';
@@ -45,17 +41,22 @@ function Category() {
       );
       setCategories(updatedCategories);
     } catch (error) {
+      console.log(error);
       alert('Failed to update status');
     }
   };
 
   const loadCategory = async (pageNum = 1) => {
+    // Prevent fetching if we're already loading or if we know there are no more pages.
+    if (loading || (!hasMore && pageNum > 1)) {
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetchCategory({ page: pageNum, limit: 10, search: '' });
-      console.log("API Response:", res);
       const allDocs = res?.Data?.docs || [];
-      console.log("All Docs:", allDocs);
+      const totalDocs = res?.Data?.totalDocs || 0;
+
       const newCategories = allDocs.map((doc) => ({
         ...doc,
         image: doc.categoryimage || Earing,
@@ -63,22 +64,48 @@ function Category() {
         count: doc.count || 0,
         active: doc.status !== undefined ? doc.status : true,
       }));
-      console.log("New Categories:", newCategories);
-      if (pageNum === 1) {
-        setCategories(newCategories);
-      } else {
-        setCategories(prev => [...prev, ...newCategories]);
-      }
-      setHasMore(allDocs.length === 10);
-    } catch {
+      
+      // Use a functional update to get the latest state and prevent race conditions.
+      setCategories(prevCategories => {
+        const updatedCategories = pageNum === 1 ? newCategories : [...prevCategories, ...newCategories];
+        // Reliably determine if there are more pages by checking against totalDocs from the API.
+        setHasMore(updatedCategories.length < totalDocs);
+        return updatedCategories;
+      });
+
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
       setHasMore(false);
     } finally {
       setLoading(false);
     }
   };
 
+  // Scroll handler for infinite pagination
+  const handleScroll = useCallback(() => {
+    if (loading || !hasMore) return;
+
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    // Load more when user is near bottom (within 100px)
+    if (scrollTop + windowHeight >= documentHeight - 100) {
+      setPage(prevPage => prevPage + 1);
+    }
+  }, [loading, hasMore]);
+
+  // Add scroll event listener
   useEffect(() => {
-    loadCategory(page);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  useEffect(() => {
+  if (page) {
+      loadCategory(page);
+  }
+  
   }, [page]);
 
   const handleEdit = (row) => {
@@ -124,6 +151,22 @@ function Category() {
           </div>
         ))}
       </div>
+
+      {/* Loading indicator */}
+      {loading && (
+        <div className="flex justify-center items-center p-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#303F26]"></div>
+          <span className="ml-2 text-[#303F26]">Loading more categories...</span>
+        </div>
+      )}
+
+      {/* No more data indicator */}
+      {!hasMore && categories.length > 0 && (
+        <div className="text-center p-6 text-[#64748B]">
+          No more categories to load
+        </div>
+      )}
+
       {showModal && <AddCategoryModel
         onClose={() => setShowModal(false)}
         categoryData={selectedImage}
