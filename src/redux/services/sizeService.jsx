@@ -1,6 +1,6 @@
 import { apiInstance } from '../../api/axiosApi';
-import { baseUrl } from '../../api/baseUrl';
-import { SIZE_LIST, SIZE_CREATE, SIZE_UPDATE, SIZE_STATUS_UPDATE } from '../../api/constApi';
+// import { baseUrl } from '../../api/baseUrl';
+import { SIZE_LIST, SIZE_CREATE, SIZE_UPDATE, SIZE_STATUS_UPDATE, ALLWOP_SIZE } from '../../api/constApi';
 
 export const fetchSizes = async ({ page = 1, limit = 10, search = '' }) => {
   const response = await apiInstance.post(SIZE_LIST, { page, limit, search });
@@ -21,4 +21,10 @@ export const updateSizeStatus = async (sizeid) => {
   const response = await apiInstance.post(SIZE_STATUS_UPDATE, { sizeid });
   return response.data;
 }; 
+
+export const allWOPSize = async ({ page = 1, limit = 10, search = ''}) => {
+   const payload = { page, limit, search };
+      const response = await apiInstance.get(ALLWOP_SIZE, { data: payload });
+      return response.data;
+}
 

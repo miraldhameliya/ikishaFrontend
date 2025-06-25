@@ -43,8 +43,27 @@ function Table({ columns, data, rowKey, loading, onBodyScroll }) {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length} className="text-center py-4">
-                  {/* Spinner */}
+                <td colSpan={columns.length} className="text-center py-8">
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    {/* Main Spinner */}
+                    {/* <div className="relative">
+                      <div className="w-12 h-12 border-4 border-[#c3c7bc] border-t-[#26371e] rounded-full animate-spin"></div>
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="w-6 h-6 bg-[#26371e] rounded-full animate-pulse"></div>
+                      </div>
+                    </div> */}
+                    
+                    {/* Loading Text */}
+                    <div className="text-gray-600 font-medium">
+                      <span className="animate-pulse">Loading</span>
+                      <span className="animate-bounce delay-100">.</span>
+                      <span className="animate-bounce delay-200">.</span>
+                      <span className="animate-bounce delay-300">.</span>
+                    </div>
+                    
+                    {/* Shimmer Effect */}
+                    <div className="w-32 h-2 bg-gradient-to-r from-transparent via-[#26371e] to-transparent rounded-full animate-pulse"></div>
+                  </div>
                 </td>
               </tr>
             ) : (

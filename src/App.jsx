@@ -10,14 +10,18 @@ import { HeaderRightButtonProvider } from './contexts/HeaderRightButtonContext';
 import DiamondClarity from './pages/DiamondClarity';
 import Metal from './pages/Metal';
 import Size from './pages/Size';
-import { useState } from 'react';
+// import { useState } from 'react';
 import Product from './pages/Product';
-import AddProduct from './pages/AddProduct';
+import AddProduct from './components/Modal/addProduct/AddProduct';
+  // import DiamondShape from './pages/DiamondShape';
+  import ProductDetails from './pages/ProductDetail';
+import DiamondShape from './pages/DiamondShape';
 
 const routeList = [
   { name: 'Category', path: '/category' },
   { name: 'Product', path: '/product' },
   { name: 'Diamond', path: '/diamond' },
+  { name: 'Diamond Shape', path: '/diamond-shape' },
   { name: 'Diamond-Clarity', path: '/diamond-clarity' },
   { name: 'Metal', path: '/metal' },
   { name: 'Size', path: '/size' },
@@ -38,11 +42,14 @@ function AppContent() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/category" element={<Category />} />
         <Route path="/diamond" element={<Diamond />} />
+        <Route path='/diamond-shape' element={<DiamondShape/>}/>
         <Route path='/product' element={<Product />} />
         <Route path='/add-product' element={<AddProduct />} />
+        <Route path='/edit-product' element={<AddProduct />} />
         <Route path='/diamond-clarity' element={<DiamondClarity />} />
         <Route path='/metal' element={<Metal />} />
         <Route path='/size' element={<Size />} />
+        <Route path='/product-details' element={<ProductDetails />} />
 
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

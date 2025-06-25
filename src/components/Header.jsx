@@ -31,6 +31,11 @@ const iconMap = {
         default: diamond,
         active: fillDiamond
     },
+    diamondShape: {
+        // eslint-disable-next-line no-undef
+        default: diamond,
+        active: fillDiamond
+    },
     'diamond-clarity': {
         default: diamondtype,
         active: fillDiamondType
@@ -45,6 +50,20 @@ const iconMap = {
     }
 };
 
+// Add this function to normalize route names to icon keys
+function getIconKey(routeName) {
+    switch (routeName.toLowerCase()) {
+        case 'category': return 'category';
+        case 'product': return 'product';
+        case 'diamond': return 'diamond';
+        case 'diamond shape': return 'diamondShape';
+        case 'diamond-clarity': return 'diamond-clarity';
+        case 'metal': return 'metal';
+        case 'size': return 'size';
+        default: return null;
+    }
+}
+
 const Header = ({ routeList }) => {
     const { rightButton } = useHeaderRightButton();
     const [hoveredLink, setHoveredLink] = useState(null);
@@ -52,12 +71,18 @@ const Header = ({ routeList }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const navLinks = (routeList || []).filter(route => Object.keys(iconMap).includes(route.name.toLowerCase()))
-        .map(route => ({
-            name: route.name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-            path: route.path,
-            iconKey: route.name.toLowerCase(),
-        }));
+    // Update navLinks logic to use getIconKey and filter out routes without icons
+    const navLinks = (routeList || [])
+        .map(route => {
+            const iconKey = getIconKey(route.name);
+            if (!iconKey || !iconMap[iconKey]) return null;
+            return {
+                name: route.name,
+                path: route.path,
+                iconKey,
+            };
+        })
+        .filter(Boolean);
 
     const handleLogout = async () => {
         setLogoutLoading(true);
@@ -112,13 +137,14 @@ const Header = ({ routeList }) => {
                     {/* <div>
                     {rightButton}
                 </div> */}
-                    <button
-                        className="bg-[#303F26] text-white px-4 py-2 flex items-center gap-2 hover:bg-[#26371e]"
-                    // onClick={handleAddClick}
-                    >
-                        <img src={Plus} alt="Add" className="w-5 h-5" />
-                        <span className="font-semibold text-lg">{rightButton}</span>
-                    </button>
+                    {rightButton && (
+                        <button
+                            className="bg-[#303F26] text-white px-4 py-2 flex items-center gap-2 hover:bg-[#26371e]"
+                        >
+                            <img src={Plus} alt="Add" className="w-5 h-5" />
+                            <span className="font-semibold text-lg">{rightButton}</span>
+                        </button>
+                    )}
 
                     <button
                         onClick={handleLogout}
