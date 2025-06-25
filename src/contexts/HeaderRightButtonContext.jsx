@@ -5,9 +5,9 @@ const HeaderRightButtonContext = createContext();
 export const useHeaderRightButton = () => useContext(HeaderRightButtonContext);
 
 export const HeaderRightButtonProvider = ({ children }) => {
-  const [rightButton, setRightButton] = useState(null);
+  const [rightButtonProps, setRightButtonProps] = useState(null);
   return (
-    <HeaderRightButtonContext.Provider value={{ rightButton, setRightButton }}>
+    <HeaderRightButtonContext.Provider value={{ rightButtonProps, setRightButtonProps }}>
       {children}
     </HeaderRightButtonContext.Provider>
   );

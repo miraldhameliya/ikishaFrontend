@@ -10,26 +10,21 @@ import { fetchCategory, updateCategoryStatus } from '../redux/services/categoryS
 function Category() {
   const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const { setRightButton } = useHeaderRightButton();
+  const { setRightButtonProps } = useHeaderRightButton();
   const [selectedImage, setSelectedImage] = useState(null);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [lastLoadedPage, setLastLoadedPage] = useState(0);
 
   // set right model button
   useEffect(() => {
-    setRightButton(
-      <span
-        className="bg-[#303F26] text-white px-4 py-2 rounded cursor-pointer hover:bg-[#26371e] font-semibold text-lg shadow"
-        onClick={() => {
-          setShowModal(true);
-        }}
-      >
-        Add Category
-      </span>
-    );
-    return () => setRightButton(null); // Clean up on unmount
-  }, [setShowModal, setRightButton]);
+    setRightButtonProps({
+      text: 'Add Category',
+      onClick: () => setShowModal(true)
+    });
+    return () => setRightButtonProps(null); // Clean up on unmount
+  }, [setShowModal, setRightButtonProps]);
 
   const handleToggle = async (index) => {
     const cat = categories[index];
@@ -47,8 +42,8 @@ function Category() {
   };
 
   const loadCategory = async (pageNum = 1) => {
-    // Prevent fetching if we're already loading or if we know there are no more pages.
-    if (loading || (!hasMore && pageNum > 1)) {
+    // Prevent fetching if we're already loading, if there are no more pages, or if this page is already loaded.
+    if (loading || (!hasMore && pageNum > 1) || pageNum <= lastLoadedPage) {
       return;
     }
     setLoading(true);
@@ -57,6 +52,10 @@ function Category() {
       const allDocs = res?.Data?.docs || [];
       const totalDocs = res?.Data?.totalDocs || 0;
 
+      console.log('Current categories:', categories.map(c => c._id));
+      console.log('New docs from API:', allDocs.map(d => d._id));
+      console.log(`Page: ${pageNum}, Received docs:`, allDocs.length, allDocs);
+
       const newCategories = allDocs.map((doc) => ({
         ...doc,
         image: doc.categoryimage || Earing,
@@ -64,15 +63,20 @@ function Category() {
         count: doc.count || 0,
         active: doc.status !== undefined ? doc.status : true,
       }));
-      
-      // Use a functional update to get the latest state and prevent race conditions.
+
       setCategories(prevCategories => {
-        const updatedCategories = pageNum === 1 ? newCategories : [...prevCategories, ...newCategories];
-        // Reliably determine if there are more pages by checking against totalDocs from the API.
+        const existingIds = new Set(prevCategories.map(cat => cat._id));
+        const filteredNewCategories = newCategories.filter(cat => !existingIds.has(cat._id));
+        const updatedCategories = pageNum === 1 ? newCategories : [...prevCategories, ...filteredNewCategories];
         setHasMore(updatedCategories.length < totalDocs);
+
+        console.log('Existing IDs:', Array.from(existingIds));
+        console.log('Filtered new categories:', filteredNewCategories.map(c => c._id));
+        console.log('Updated categories length:', updatedCategories.length, updatedCategories);
+
+        setLastLoadedPage(pageNum);
         return updatedCategories;
       });
-
     } catch (error) {
       console.error("Failed to fetch categories:", error);
       setHasMore(false);
@@ -192,6 +196,7 @@ function Category() {
         categoryData={selectedImage}
         onSuccess={() => {
           setPage(1);
+          setLastLoadedPage(0);
           loadCategory(1);
         }}
       />}

@@ -3,27 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 import editIcon from '../assets/icon/edit.png';
 import productImage from '../assets/icon/nosepin.png';
-import { fetchAllProduct } from '../redux/services/ProductService';
+import { fetchAllProduct, viewProduct, viewProductDetail } from '../redux/services/ProductService';
 
 
 const Product = () => {
     const navigate = useNavigate();
-    const { setRightButton } = useHeaderRightButton();
+    const { setRightButtonProps } = useHeaderRightButton();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [detailsLoading, setDetailsLoading] = useState(false);
+    const [detailsError, setDetailsError] = useState(null);
 
     useEffect(() => {
-        setRightButton(
-            <button
-                className="bg-[#303F26] text-white px-4 py-2 rounded cursor-pointer hover:bg-[#26371e] font-semibold text-lg shadow"
-                onClick={() => navigate('/add-product')}
-            >
-                Add Product
-            </button>
-        );
-        return () => setRightButton(null);
-    }, [setRightButton, navigate]);
+        setRightButtonProps({
+            text: 'Add Product',
+            onClick: () => navigate('/add-product')
+        });
+        return () => setRightButtonProps(null);
+    }, [setRightButtonProps, navigate]);
 
     useEffect(() => {
         const getProducts = async () => {
@@ -54,28 +52,70 @@ const Product = () => {
         console.log('Delete product:', product);
     };
 
+    const handleProductClick = async (product) => {
+        setDetailsLoading(true);
+        setDetailsError(null);
+        try {
+            // Try to get IDs from diamond_details[0]
+            let diamondtypeId = '';
+            let diamondclaritiesId = '';
+            let metaltypeId = '';
+            if (product.diamond_details && product.diamond_details.length > 0) {
+                const details = product.diamond_details[0];
+                diamondtypeId = details.diamondtypeId?._id || '';
+                diamondclaritiesId = details.diamondclaritiesId?._id || details.diamondclaritiesId || '';
+                metaltypeId = details.metaltypeId?._id || details.metaltypeId || '';
+            }
+            // Fallback: try from varient[0] if needed
+            if ((!diamondtypeId || !diamondclaritiesId || !metaltypeId) && product.varient && product.varient.length > 0) {
+                const variant = product.varient[0];
+                diamondtypeId = diamondtypeId || (variant.diamondtypeId?._id || '');
+                diamondclaritiesId = diamondclaritiesId || (variant.diamondclaritiesId?._id || variant.diamondclaritiesId || '');
+                metaltypeId = metaltypeId || (variant.metaltypeId?._id || variant.metaltypeId || '');
+            }
+            if (!diamondtypeId || !diamondclaritiesId || !metaltypeId) {
+                setDetailsError('Required IDs not found in product data');
+                setDetailsLoading(false);
+                return;
+            }
+            const payload = {
+                productId: product._id,
+                diamondtypeId,
+                diamondclaritiesId,
+                metaltypeId
+            };
+            const data = await viewProductDetail(payload);
+            navigate('/product-details', { state: { product: data.Data } });
+        } catch (err) {
+            setDetailsError('Failed to fetch product details');
+            console.error(err);
+        } finally {
+            setDetailsLoading(false);
+        }
+    };
+
     if (loading) {
         return <div className='p-4'>
-<div className="flex flex-col items-center justify-center space-y-4">
-                    {/* Main Spinner */}
-                    {/* <div className="relative">
+            <div className="flex flex-col items-center justify-center space-y-4">
+                {/* Main Spinner */}
+                {/* <div className="relative">
                       <div className="w-12 h-12 border-4 border-[#c3c7bc] border-t-[#26371e] rounded-full animate-spin"></div>
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <div className="w-6 h-6 bg-[#26371e] rounded-full animate-pulse"></div>
                       </div>
                     </div> */}
-                    
-                    {/* Loading Text */}
-                    <div className="text-gray-600 font-medium">
-                      <span className="animate-pulse">Loading</span>
-                      <span className="animate-bounce delay-100">.</span>
-                      <span className="animate-bounce delay-200">.</span>
-                      <span className="animate-bounce delay-300">.</span>
-                    </div>
-                    
-                    {/* Shimmer Effect */}
-                    <div className="w-32 h-2 bg-gradient-to-r from-transparent via-[#26371e] to-transparent rounded-full animate-pulse"></div>
-                  </div>
+
+                {/* Loading Text */}
+                <div className="text-gray-600 font-medium">
+                    <span className="animate-pulse">Loading</span>
+                    <span className="animate-bounce delay-100">.</span>
+                    <span className="animate-bounce delay-200">.</span>
+                    <span className="animate-bounce delay-300">.</span>
+                </div>
+
+                {/* Shimmer Effect */}
+                <div className="w-32 h-2 bg-gradient-to-r from-transparent via-[#26371e] to-transparent rounded-full animate-pulse"></div>
+            </div>
 
         </div>;
     }
@@ -84,8 +124,26 @@ const Product = () => {
         return <div className="p-4 text-red-500">{error}</div>;
     }
 
+    if (detailsLoading) {
+        return <div className='p-4'>
+            <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="text-gray-600 font-medium">
+                    <span className="animate-pulse">Loading Product Details</span>
+                    <span className="animate-bounce delay-100">.</span>
+                    <span className="animate-bounce delay-200">.</span>
+                    <span className="animate-bounce delay-300">.</span>
+                </div>
+                <div className="w-32 h-2 bg-gradient-to-r from-transparent via-[#26371e] to-transparent rounded-full animate-pulse"></div>
+            </div>
+        </div>;
+    }
+
+    if (detailsError) {
+        return <div className="p-4 text-red-500">{detailsError}</div>;
+    }
+
     return (
-        <div className="p-4 bg-[#eff0f5] min-h-screen">
+        <div className="p-4 bg-[#eff0f5]">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
                 {products.map((product) => (
                     <div key={product._id} className="group relative bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-1">
@@ -101,11 +159,11 @@ const Product = () => {
                                     </svg>
                                 </button>
                             </div>
-                            <img 
-                                src={(product.images && product.images[0]?.url) || productImage} 
-                                alt={`Design ${product.design_code}`} 
-                                className="p-3 w-[30rem] h-[14rem] cursor-pointer" 
-                                onClick={() => navigate('/product-details', { state: { product } })}
+                            <img
+                                src={(product.images && product.images[0]?.url) || productImage}
+                                alt={`Design ${product.design_code}`}
+                                className="p-3 w-[30rem] h-[14rem] cursor-pointer"
+                                onClick={() => handleProductClick(product)}
                             />
                         </div>
                         <div className="px-3 py-2 bg-white text-left">

@@ -47,7 +47,7 @@ const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
 
 const Diamond = () => {
   const [showModal, setShowModal] = useState(false);
-  const { setRightButton } = useHeaderRightButton();
+  const { setRightButtonProps } = useHeaderRightButton();
   const [selectedRow, setSelectedRow] = useState(null);
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -88,19 +88,15 @@ const Diamond = () => {
   }, [page]);
 
   useEffect(() => {
-    setRightButton(
-      <span
-        className="bg-[#303F26] text-white px-4 py-2 rounded cursor-pointer hover:bg-[#26371e] font-semibold text-lg shadow"
-        onClick={() => {
-          setSelectedRow(null);
-          setShowModal(true);
-        }}
-      >
-        Add Diamond Shape
-      </span>
-    );
-    return () => setRightButton(null); // Clean up on unmount
-  }, [setShowModal, setRightButton]);
+    setRightButtonProps({
+      text: 'Add Diamond Shape',
+      onClick: () => {
+        setSelectedRow(null);
+        setShowModal(true);
+      }
+    });
+    return () => setRightButtonProps(null); // Clean up on unmount
+  }, [setShowModal, setRightButtonProps]);
 
   useEffect(() => {
     setPage(1);

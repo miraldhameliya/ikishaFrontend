@@ -46,7 +46,7 @@ const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
 const DiamondClarity = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const { setRightButton } = useHeaderRightButton();
+  const { setRightButtonProps } = useHeaderRightButton();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -83,19 +83,15 @@ const DiamondClarity = () => {
   }, [page]);
 
   useEffect(() => {
-    setRightButton(
-      <span
-        className="bg-[#303F26] text-white px-4 py-2 rounded cursor-pointer hover:bg-[#26371e] font-semibold text-lg shadow"
-        onClick={() => {
-          setSelectedRow(null);
-          setShowModal(true);
-        }}
-      >
-        Add Diamond Clarity
-      </span>
-    );
-    return () => setRightButton(null); // Clean up on unmount
-  }, [setShowModal, setRightButton]);
+    setRightButtonProps({
+      text: 'Add Diamond Clarity',
+      onClick: () => {
+        setSelectedRow(null);
+        setShowModal(true);
+      }
+    });
+    return () => setRightButtonProps(null);
+  }, [setShowModal, setRightButtonProps]);
 
   useEffect(() => {
     setPage(1);

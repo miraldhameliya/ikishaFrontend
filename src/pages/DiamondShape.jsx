@@ -3,7 +3,7 @@ import Table from '../components/Table'
 import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 import { fetchDiamondType } from '../redux/services/diamondTypeService';
 import { changeDiamondTypeStatus } from '../redux/services/diamondTypeService';
-// import AddDiamondTypeModel from '../components/Modal/AddDiamondTypeModel';
+import AddDiamondTypeModel from '../components/Modal/AddDiamondTypeModel';
 import edit from '../assets/icon/edit.png';
 
 const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
@@ -45,7 +45,7 @@ const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
     },
 ];
 function DiamondShape() {
-    const { setRightButton } = useHeaderRightButton();
+    const { setRightButtonProps } = useHeaderRightButton();
     const [showModal, setShowModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [data, setData] = useState([]);
@@ -74,8 +74,6 @@ function DiamondShape() {
             setLoading(false);
         }
     }
-
-
     const handleScroll = (e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.target;
         if (scrollHeight - scrollTop - clientHeight < 20 && hasMore && !loading) {
@@ -86,21 +84,16 @@ function DiamondShape() {
     useEffect(() => {
         loadDiamondsShape(page);
     }, [page]);
-
     useEffect(() => {
-        setRightButton(
-            <span
-                className="bg-[#303F26] text-white px-4 py-2 rounded cursor-pointer hover:bg-[#26371e] font-semibold text-lg shadow"
-                onClick={() => {
-                    setSelectedRow(null);
-                    setShowModal(true);
-                }}
-            >
-                Add Diamond Type
-            </span>
-        );
-        return () => setRightButton(null); // Clean up on unmount
-    }, [setShowModal, setRightButton]);
+        setRightButtonProps({
+            text: 'Add Diamond Type',
+            onClick: () => {
+                setSelectedRow(null);
+                setShowModal(true);
+            }
+        });
+        return () => setRightButtonProps(null); // Clean up on unmount
+    }, [setShowModal, setRightButtonProps]);
 
     useEffect(() => {
         setPage(1);

@@ -10,23 +10,15 @@ import { allWOPClarity } from '../../../redux/services/diamondClarityservice';
 import { allWOPSize } from '../../../redux/services/sizeService';
 import { allWopMetal } from '../../../redux/services/metalService';
 import { allWopType } from '../../../redux/services/diamondTypeService';
+import { allWop } from '../../../redux/services/categoryService';
+import select from '../../../assets/icon/Dropdown.png'
 const DIAMOND_LABGROWN_KEY = 'diamondRowsLabGrown';
 const DIAMOND_NATURAL_KEY = 'diamondRowsNatural';
 const OTHERCHARGE_KEY = 'otherChargeRows';
 
-// function loadFromStorage(key, fallback) {
-//     try {
-//         const data = localStorage.getItem(key);
-//         return data ? JSON.parse(data) : fallback;
-//     } catch {
-//         return fallback;
-//     }
-// }
-
-
 const InputField = ({ label, placeholder, value, onChange, ...props }) => (
     <div className="flex flex-col">
-        <label className="mb-1 text-sm font-semibold text-gray-600">{label}</label>
+        <label className="mb-1 text-sm font-semibold text-[#334155]">{label}</label>
         <input
             type="text"
             placeholder={placeholder}
@@ -37,25 +29,6 @@ const InputField = ({ label, placeholder, value, onChange, ...props }) => (
         />
     </div>
 );
-
-// const OtherChargeRow = () => (
-//     <tr className="border-b">
-//         <td className="p-2">
-//             <select className="w-full px-3 py-1.5 border rounded-md bg-gray-50">
-//                 <option>Lab-Grown/Round</option>
-//             </select>
-//         </td>
-//         <td className="p-2"><input type="text" defaultValue="3gm" className="w-full px-3 py-1.5 border rounded-md" /></td>
-//         <td className="p-2"><input type="text" defaultValue="12,000" className="w-full px-3 py-1.5 border rounded-md" /></td>
-//         <td className="p-2 text-center">
-//             <button className="text-red-500 hover:text-red-700">
-//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-//                     <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
-//                 </svg>
-//             </button>
-//         </td>
-//     </tr>
-// );
 
 // Minimal FilterSelect for this file
 const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSelect }) => (
@@ -128,16 +101,10 @@ const AddProduct = () => {
         totalAmount: '',
     });
 
-    // Main (saved) state with localStorage persistence
-    // const [labGrownRows, setLabGrownRows] = useState([]);
-    // const [naturalRows, setNaturalRows] = useState([]);
-    // const [otherChargeRows, setOtherChargeRows] = useState([]);
-
     // Draft (editable) state
     const [draftLabGrownRows, setDraftLabGrownRows] = useState([]);
     const [draftNaturalRows, setDraftNaturalRows] = useState([]);
     const [draftOtherChargeRows, setDraftOtherChargeRows] = useState([]);
-
     // Filter states for the new UI
     const [diamondType, setDiamondType] = useState('Lab-Grown');
     const [diamondClarity, setDiamondClarity] = useState('VVS');
@@ -148,41 +115,41 @@ const AddProduct = () => {
     const [sizeOptions, setSizeOptions] = useState([]);
     const [diamondTypeOptions, setDiamondTypeOptions] = useState([]);
     const [metalTypeOptions, setMetalTypeOptions] = useState([]);
-
     // Dropdown open states
     const [isDiamondTypeOpen, setDiamondTypeOpen] = useState(false);
     const [isClarityOpen, setClarityOpen] = useState(false);
     const [isMetalTypeOpen, setMetalTypeOpen] = useState(false);
-
     const [images, setImages] = useState([]);
     const [uploading, setUploading] = useState(false);
+    const [categoryOptions, setCategoryOptions] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Fetch Categories for dropdown
+                const res = await allWop({ search: '' });
+                if (res && res.Data) {
+                    setCategoryOptions(res.Data);
+                    console.log("Category options:", res.Data);
+                }
                 // Fetch Shapes for table
                 const shapeData = await allWOPShape({ search: '' });
                 if (shapeData && shapeData.Data) setShapeOptions(shapeData.Data);
-
                 // Fetch Clarities for table and filter
                 const clarityData = await allWOPClarity({ search: '' });
                 console.log(clarityData);
                 if (clarityData && clarityData.Data) {
                     setClarityOptions(clarityData.Data);
                 }
-
                 // Fetch Sizes for table
                 const sizeData = await allWOPSize({ search: '' });
                 if (sizeData && sizeData.Data) setSizeOptions(sizeData.Data);
-
                 // Fetch Diamond Types for filter
                 const typeData = await allWopType({ search: '' });
                 if (typeData && typeData.Data) setDiamondTypeOptions(typeData.Data);
-                
                 // Fetch Metal Types for filter
                 const metalData = await allWopMetal({ search: '' });
                 if (metalData && metalData.Data) setMetalTypeOptions(metalData.Data);
-
             } catch (err) {
                 console.error("Failed to fetch diamond details", err);
             }
@@ -199,7 +166,7 @@ const AddProduct = () => {
 
     const activeDiamondRows = activeTab === 'Lab-Grown' ? draftLabGrownRows : draftNaturalRows;
     const totalDiamondPrice = calculateTotalPrice(activeDiamondRows);
-    
+
 
     // Diamond Table logic
     const handleTabChange = (tab) => {
@@ -343,7 +310,7 @@ const AddProduct = () => {
             // Map formState to backend keys
             const payload = {
                 productId: '', // If editing, set the product ID
-                categoryid: '6850eeff059878b7a8a32c62', // TODO: Set category ID from selection
+                categoryid: formState.category, // TODO: Set category ID from selection
                 label_code: formState.labelNo,
                 design_code: formState.designNo,
                 laboureprice: parseFloat(formState.labourPrice) || 0,
@@ -382,10 +349,30 @@ const AddProduct = () => {
                     {/* Left Column */}
                     <div className="flex-1">
                         <h2 className="text-xl font-bold mb-6 text-gray-800">Product Details</h2>
-                        <div className="mb-8 space-y-6">
+                        <div className="mb-8 space-y-6 text-[#334155]">
                             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"> */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <InputField label="Laboure Price/gm" placeholder="Enter price/gm" value={formState.labourPricePerGm} onChange={e => setFormState(f => ({ ...f, labourPricePerGm: e.target.value }))} />
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6  ">
+                                <div className="relative flex flex-col">
+                                    <label className="mb-1 text-sm font-semibold text-[#334155]">Category</label>
+                                    <select
+                                        className="appearance-none px-4 py-2 border rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-800"
+                                        value={formState.category}
+                                        onChange={e => setFormState(f => ({ ...f, category: e.target.value }))}
+                                        style={{ background: 'none' }}
+                                    >
+                                        <option value="">Select Category</option>
+                                        {categoryOptions.map(cat => (
+                                            <option key={cat._id} value={cat._id}>{cat.categoryname}</option>
+                                        ))}
+                                    </select>
+                                    <img
+                                        src={select} 
+                                        alt="Dropdown"
+                                        className="w-4 h-4 absolute right-3 top-9 pointer-events-none"
+                                        style={{ pointerEvents: 'none' }}
+                                    />
+                                </div>
+                                <InputField label="Laboure Price/gm" placeholder="Enter price/gm" value={formState.labourPricePerGm} onChange={e => setFormState(f => ({ ...f, labourPricePerGm: e.target.value }))} />
                                 <InputField label="Laboure Price" placeholder="Auto" value={formState.labourPrice} readOnly />
                                 <InputField label="Other Price" placeholder="Auto" value={formState.otherPrice} readOnly />
                                 {/* <InputField label="Total Amount" placeholder="Enter price" value={formState.totalAmount} onChange={e => setFormState(f => ({ ...f, totalAmount: e.target.value }))} /> */}
@@ -513,7 +500,7 @@ const AddProduct = () => {
                             />
                         </div>
                         <div>
-                            <CreateVariants 
+                            <CreateVariants
                                 diamondType={diamondType}
                                 diamondClarity={diamondClarity}
                                 metalType={metalType}

@@ -37,6 +37,8 @@ export const CATEGORY_LIST = '/admin/categories/';
 export const CATEGORY_CREATE = '/admin/categories/create';
 export const CATEGORY_UPDATE = '/admin/categories/update';
 export const CATEGORY_STATUS_UPDATE = '/admin/categories/changestatus';
+export const ALL_WOP = '/admin/categories/?search='
+
 
 export const DIMOND_TYPE = `/admin/diamondtype/create`;
 export const DIAMOND_TYPE_UPDATE = `/admin/diamondtype/update`;
@@ -49,3 +51,5 @@ export const ADD_PRODUCT_LIST = '/admin/products/create'
 export const UPDATE_PRODUCT_LIST = '/admin/product/update';
 export const VIEW_PRODUCT_LIST = '/admin/product/view';
 export const ALLWOP = '/admin/products/?search='
+export const VIEW_ONE_PRODUCT = '/admin/products/getone?productId=&diamondtypeId='
+export const PRODUCT_DETAIL = '/admin/products/getone';
