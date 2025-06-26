@@ -26,10 +26,10 @@ const AddOtherCharges = ({ rows, setRows }) => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-400 border-collapse">
+      <table className="min-w-full bg-white border border-gray-400 ">
         <thead>
           <tr>
-            <th colSpan={4} className="text-center text-base font-bold py-1 border border-gray-400">
+            <th colSpan={4} className="text-center text-base text-[#1E293B] py-1 border border-gray-400">
               Other Charge
             </th>
           </tr>
@@ -46,7 +46,7 @@ const AddOtherCharges = ({ rows, setRows }) => {
               <td className="p-1 border border-gray-400 text-center">
                 <input
                   type="text"
-                  className="w-full text-center"
+                  className="w-full text-center text-[#94A3B8] focus:outline-none"
                   value={row.product}
                   onChange={e => handleInputChange(idx, 'product', e.target.value)}
                 />
@@ -54,7 +54,7 @@ const AddOtherCharges = ({ rows, setRows }) => {
               <td className="p-1 border border-gray-400 text-center">
                 <input
                   type="text"
-                  className="w-full text-center"
+                  className="w-full text-center  text-[#94A3B8] focus:outline-none"
                   value={row.weight}
                   onChange={e => handleInputChange(idx, 'weight', e.target.value)}
                 />
@@ -62,12 +62,12 @@ const AddOtherCharges = ({ rows, setRows }) => {
               <td className="p-1 border border-gray-400 text-center">
                 <input
                   type="text"
-                  className="w-full text-center"
+                  className="w-full text-center text-[#94A3B8] focus:outline-none"
                   value={row.amount}
                   onChange={e => handleInputChange(idx, 'amount', e.target.value)}
                 />
               </td>
-              <td className="p-1 text-center border border-gray-400 text-center">
+              <td className="p-1 border border-gray-400 text-center">
                 <button
                   className="text-red-500 hover:text-red-700"
                   onClick={() => handleDelete(idx)}

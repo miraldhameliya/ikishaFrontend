@@ -12,18 +12,14 @@ import { allWopMetal } from '../../../redux/services/metalService';
 import { allWopType } from '../../../redux/services/diamondTypeService';
 import { allWop } from '../../../redux/services/categoryService';
 import select from '../../../assets/icon/Dropdown.png'
-import { UPLOAD_IMAGES } from '../../../api/constApi';
-const DIAMOND_LABGROWN_KEY = 'diamondRowsLabGrown';
-const DIAMOND_NATURAL_KEY = 'diamondRowsNatural';
-const OTHERCHARGE_KEY = 'otherChargeRows';
 
 const InputField = ({ label, placeholder, value, onChange, ...props }) => (
     <div className="flex flex-col">
-        <label className="mb-1 text-sm font-semibold text-[#334155]">{label}</label>
+        <label className="mb-1 text-sm font-semibold text-[#475569]">{label}</label>
         <input
             type="text"
             placeholder={placeholder}
-            className="px-4 py-2 border rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-800"
+            className="px-4 py-2 rounded-md focus:outline-gray-300 bg-[#F3F4F9] "
             value={value}
             onChange={onChange}
             {...props}
@@ -32,12 +28,12 @@ const InputField = ({ label, placeholder, value, onChange, ...props }) => (
 );
 
 // Minimal FilterSelect for this file
-const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSelect, displayKey = "type" }) => (
+const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSelect, displayKey = "type", placeholder }) => (
     <div className="flex flex-col min-w-[180px] relative">
-        <span className="text-xs font-semibold text-[#4B5563] mb-1">{label}</span>
+        <span className="text-xs font-semibold text-[#475569] mb-1">{label}</span>
         <div className="flex items-center bg-[#f5f7fa] rounded-md px-2 py-1 relative">
-            {value && (
-                <span className="bg-green-300 text-white text-xs rounded px-2 py-0.5 flex items-center mr-2">
+            {value ? (
+                <span className="bg-[#81C995] text-white text-xs rounded px-2 py-0.5 flex items-center mr-2">
                     {typeof value === "object" ? value[displayKey] : value}
                     <button
                         className="ml-1 text-white hover:text-gray-200"
@@ -47,6 +43,8 @@ const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSe
                         ×
                     </button>
                 </span>
+            ) : (
+                <span className="text-[#94A3B8] text-xs mr-2">{placeholder}</span>
             )}
             <button
                 className="ml-auto text-gray-400 hover:text-gray-600"
@@ -57,11 +55,11 @@ const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSe
             </button>
         </div>
         {isOpen && (
-            <div className="absolute top-full mt-1 w-full bg-white border rounded shadow-lg z-10">
+            <div className="absolute top-full mt-1 w-full bg-white border border-[#475569] shadow-lg z-10">
                 {options.map(option => (
                     <div
                         key={option._id}
-                        className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                        className="px-3 py-2 cursor-pointer text-[#475569] hover:bg-gray-200"
                         onClick={() => onSelect(option)}
                     >
                         {option[displayKey]}
@@ -107,9 +105,9 @@ const AddProduct = () => {
     const [draftNaturalRows, setDraftNaturalRows] = useState([]);
     const [draftOtherChargeRows, setDraftOtherChargeRows] = useState([]);
     // Filter states for the new UI
-    const [diamondType, setDiamondType] = useState('Lab-Grown');
-    const [diamondClarity, setDiamondClarity] = useState('VVS');
-    const [metalType, setMetalType] = useState('18KT');
+    const [diamondType, setDiamondType] = useState('');
+    const [diamondClarity, setDiamondClarity] = useState('');
+    const [metalType, setMetalType] = useState('');
     const [activeTab, setActiveTab] = useState('Lab-Grown');
     const [shapeOptions, setShapeOptions] = useState([]);
     const [clarityOptions, setClarityOptions] = useState([]);
@@ -118,12 +116,13 @@ const AddProduct = () => {
     const [metalTypeOptions, setMetalTypeOptions] = useState([]);
     // Dropdown open states
     const [isDiamondTypeOpen, setDiamondTypeOpen] = useState(false);
-    console.log("isDiamondTypeOpen",isDiamondTypeOpen); 
+    console.log("isDiamondTypeOpen", isDiamondTypeOpen);
     const [isClarityOpen, setClarityOpen] = useState(false);
     const [isMetalTypeOpen, setMetalTypeOpen] = useState(false);
     const [images, setImages] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const [variants, setVariants] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -279,20 +278,18 @@ const AddProduct = () => {
         try {
             const diamond_details = [
                 ...draftLabGrownRows.map(row => ({
-                    // ...row,
-                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : '',
+                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : row.diamondtypeId || '',
                     diamondshapeId: row.diamondshapeId || '',
-                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : '',
+                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : row.diamondclaritiesId || '',
                     sizeid: row.sizeid || '',
                     rate: row.rate,
                     weight: row.weight,
                     price: row.totalPrice?.toString().replace(/,/g, '') || '0',
                 })),
                 ...draftNaturalRows.map(row => ({
-                    // ...row,
-                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : '',
+                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : row.diamondtypeId || '',
                     diamondshapeId: row.diamondshapeId || '',
-                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : '',
+                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : row.diamondclaritiesId || '',
                     sizeid: row.sizeid || '',
                     rate: row.rate,
                     weight: row.weight,
@@ -307,7 +304,10 @@ const AddProduct = () => {
             }));
             // Build images array (only selected images)
             const imagesArr = images.map(url => ({ url }));
-            console.log("imagesArr",imagesArr);
+            // Collect diamond_type, diamond_clarity, metal_type as arrays (single selection)
+            const diamondTypeIds = diamondType ? [typeof diamondType === "object" ? diamondType._id : diamondType] : [];
+            const diamondClarityIds = diamondClarity ? [typeof diamondClarity === "object" ? diamondClarity._id : diamondClarity] : [];
+            const metalTypeIds = metalType ? [typeof metalType === "object" ? metalType._id : metalType] : [];
             // Map formState to backend keys
             const payload = {
                 productId: '', // If editing, set the product ID
@@ -325,9 +325,10 @@ const AddProduct = () => {
                 images: imagesArr,
                 diamond_details,
                 other_charges,
-                diamondtypeId: typeof diamondType === "object" ? diamondType._id : '',
-                diamondclaritiesId: typeof diamondClarity === "object" ? diamondClarity._id : '',
-                metaltypeId: typeof metalType === "object" ? metalType._id : '',
+                diamond_type: diamondTypeIds,
+                diamond_clarity: diamondClarityIds,
+                metal_type: metalTypeIds,
+                varient: variants,
             };
             if (editingProduct) {
                 payload.productId = editingProduct._id;
@@ -356,27 +357,27 @@ const AddProduct = () => {
         // Extract URLs from the images array
         return (res.Data.images || []).map(img => img.url);
     };
-    console.log("diamondType",diamondType);
-    console.log("diamondClarity",diamondClarity);
-    console.log("metalType",metalType);
-    console.log("totalDiamondPrice",totalDiamondPrice);
+    console.log("diamondType", diamondType);
+    console.log("diamondClarity", diamondClarity);
+    console.log("metalType", metalType);
+    console.log("totalDiamondPrice", totalDiamondPrice);
     return (
-        <div className="p-3 bg-[#eff0f5] min-h-screen">
-            <div className="bg-white p-3 rounded-lg shadow-lg">
-                <div className="flex flex-col lg:flex-row gap-8">
+        <div className="p-5 bg-[#eff0f5] min-h-screen">
+            <div className="bg-white p-3 rounded-lg ">
+                <div className="flex flex-col lg:flex-row gap-6">
                     {/* Left Column */}
-                    <div className="flex-1">
-                        <h2 className="text-xl font-bold mb-6 text-gray-800">Product Details</h2>
+                    <div className="w-full lg:w-1/2">
+                        <h2 className="text-xl font-bold mb-8 mt-5 text-gray-800">Product Details</h2>
                         <div className="mb-8 space-y-6 text-[#334155]">
                             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"> */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6  ">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div className="relative flex flex-col">
-                                    <label className="mb-1 text-sm font-semibold text-[#334155]">Category</label>
+                                    <label className="mb-1 text-sm font-semibold text-[#475569]">Category</label>
                                     <select
-                                        className="appearance-none px-4 py-2 border rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-800"
+                                        className="appearance-none px-4 py-2 rounded-md focus:outline-none text-[#94A3B8]"
                                         value={formState.category}
                                         onChange={e => setFormState(f => ({ ...f, category: e.target.value }))}
-                                        style={{ background: 'none' }}
+                                        style={{ background: '#F3F4F9' }}
                                     >
                                         <option value="">Select Category</option>
                                         {categoryOptions.map(cat => (
@@ -384,7 +385,7 @@ const AddProduct = () => {
                                         ))}
                                     </select>
                                     <img
-                                        src={select} 
+                                        src={select}
                                         alt="Dropdown"
                                         className="w-4 h-4 absolute right-3 top-9 pointer-events-none"
                                         style={{ pointerEvents: 'none' }}
@@ -410,7 +411,7 @@ const AddProduct = () => {
                         <div className="flex-1 flex flex-col gap-8">
                             <div>
                                 <div className="flex justify-end items-center mb-4">
-                                    <button className="bg-[#303f26] text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-900 flex items-center gap-1" onClick={handleAddDiamondRow}>
+                                    <button className="bg-[#303f26] text-white px-3 py-1 text-sm font-semibold flex items-center gap-1" onClick={handleAddDiamondRow}>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                         </svg>
@@ -431,7 +432,7 @@ const AddProduct = () => {
                             <div>
                                 <div className="flex justify-end items-center mb-4">
                                     <button
-                                        className="bg-[#303f26] text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-900 flex items-center gap-1"
+                                        className="bg-[#303f26] text-white px-3 py-1 text-sm font-semibold flex items-center gap-1"
                                         onClick={handleAddOtherChargeRow}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -452,14 +453,14 @@ const AddProduct = () => {
                         </div>
                     </div>
                     {/* Right Column */}
-                    <div className="flex-1 flex flex-col gap-7">
+                    <div className="w-full lg:w-1/2 flex flex-col gap-7">
 
-                        <div className="mb-6">
+                        <div className="mb-8 mt-8">
                             <div className="flex justify-end gap-4">
                                 <button className="px-6 py-2 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 font-semibold" onClick={handleCancel}>Cancel</button>
-                                <button className="px-6 py-2 rounded-md text-white bg-green-900 hover:bg-green-800 font-semibold" onClick={handleSave} disabled={uploading}>Save</button>
+                                <button className="px-6 py-2 rounded-md text-white bg-[#303F26] font-semibold" onClick={handleSave} disabled={uploading}>Save</button>
                             </div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-600">Upload Image</label>
+                            <label className="mb-2 block text-sm font-semibold text-[#475569]">Upload Image</label>
                             <div className="flex items-center gap-4">
                                 <div className="flex gap-2 overflow-x-auto border-2 border-dashed border-gray-400 rounded-lg p-2" style={{ borderStyle: 'dashed' }}>
                                     {images.map((img, i) => (
@@ -482,7 +483,7 @@ const AddProduct = () => {
                         <div className="flex gap-6 mt-4">
                             <FilterSelect
                                 label="Diamond Type"
-                                value={typeof diamondType === "object" ? diamondType._id : diamondType}
+                                value={typeof diamondType === "object" ? diamondType.type : diamondType}
                                 onClear={() => setDiamondType('')}
                                 onDropdown={() => setDiamondTypeOpen(!isDiamondTypeOpen)}
                                 isOpen={isDiamondTypeOpen}
@@ -492,10 +493,12 @@ const AddProduct = () => {
                                     setDiamondTypeOpen(false);
                                 }}
                                 displayKey="type"
+                                placeholder="Enter Diamond Type"
                             />
                             <FilterSelect
                                 label="Diamond Clarity"
                                 value={diamondClarity}
+                                placeholder="Enter Clarity"
                                 onClear={() => setDiamondClarity('')}
                                 onDropdown={() => setClarityOpen(!isClarityOpen)}
                                 isOpen={isClarityOpen}
@@ -518,6 +521,8 @@ const AddProduct = () => {
                                     setMetalTypeOpen(false);
                                 }}
                                 displayKey="name"
+                                placeholder="Enter Metal Type"
+
                             />
                         </div>
                         <div>
@@ -526,6 +531,8 @@ const AddProduct = () => {
                                 diamondClarity={diamondClarity}
                                 metalType={metalType}
                                 diamondPrice={totalDiamondPrice}
+                                variants={variants}
+                                setVariants={setVariants}
                             />
                         </div>
                     </div>

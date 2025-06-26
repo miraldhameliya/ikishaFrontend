@@ -4,7 +4,7 @@ import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 import editIcon from '../assets/icon/edit.png';
 import productImage from '../assets/icon/nosepin.png';
 import { fetchAllProduct, viewProductDetail } from '../redux/services/ProductService';
-
+import remove from '../assets/icon/Remove.png'
 
 const Product = () => {
     const navigate = useNavigate();
@@ -53,33 +53,35 @@ const Product = () => {
     };
 
     const handleProductClick = async (product) => {
-        console.log("product",product);
-        console.log("product.diamondtypeId",product.diamond_details);
-        console.log("product.diamond_details[0]",product.diamond_details.diamondclaritiesId._id);
-        console.log("product.diamondclaritiesId",product.diamondclaritiesId);
-        console.log("product.metaltypeId",product.metaltypeId);
+        console.log("product", product);
+        // const diamondDetails = product.diamond_details && product.diamond_details[0];
+        //     const diamondclaritiesId = diamondDetails?.diamondclaritiesId?._id;
+        //     const diamondshapeId = diamondDetails?.diamondshapeId?._id;
+        //     const diamondtypeId = diamondDetails?.diamondtypeId?._id;
+        const diamondDetails = product.diamond_details && product.diamond_details[0];
+        const diamondtypeId = diamondDetails?.diamondtypeId?._id;
+        const diamondclaritiesId = diamondDetails?.diamondclaritiesId?._id;
+        const metaltypeId = product.varient?.metaltypeId?._id;
+        const productId = product._id;
+
+        console.log("diamondtypeId:====", diamondtypeId);
+        console.log("diamondclaritiesId:", diamondclaritiesId);
+        console.log("metaltypeId:", metaltypeId);
+        console.log("productId:", productId);
+
         setDetailsLoading(true);
         setDetailsError(null);
         try {
-            const diamondDetails = product.diamond_details && product.diamond_details[0];
-            const diamondclaritiesId = diamondDetails?.diamondclaritiesId?._id;
-            const diamondshapeId = diamondDetails?.diamondshapeId?._id;
-            const diamondtypeId = diamondDetails?.diamondtypeId?._id;
-
-            console.log("diamondclaritiesId:", diamondclaritiesId);
-            console.log("diamondshapeId:", diamondshapeId);
-            console.log("diamondtypeId:", diamondtypeId);
-
-            if (!diamondtypeId || !diamondclaritiesId || !diamondshapeId) {
+            if (!diamondtypeId || !diamondclaritiesId || !metaltypeId || !productId) {
                 setDetailsError('Required IDs not found in product data');
                 setDetailsLoading(false);
                 return;
             }
             const payload = {
-                productId: product._id,
+                productId,
                 diamondtypeId,
                 diamondclaritiesId,
-                metaltypeId: "6856579826ffa68c8652f9fe"
+                metaltypeId
             };
             const data = await viewProductDetail(payload);
             navigate('/product-details', { state: { product: data.Data } });
@@ -143,17 +145,14 @@ const Product = () => {
         <div className="p-4 bg-[#eff0f5]">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
                 {products.map((product) => (
-                    <div key={product._id} className="group relative bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-1">
+                    <div key={product._id} className="group relative bg-white shadow-md overflow-hidden transition-transform transform hover:-translate-y-1">
                         <div className="h-56 bg-[#ffffff] flex items-center justify-center overflow-hidden relative">
                             <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2">
                                 <button onClick={() => handleEdit(product)} className="bg-white p-1.5 rounded-full shadow-lg hover:bg-gray-200 transition-colors">
                                     <img src={editIcon} alt="Edit" className="w-6 h-6" />
                                 </button>
-                                <button onClick={() => handleDelete(product)} className="bg-red-600 p-2 rounded-full shadow-lg hover:bg-red-700 transition-colors">
-                                    {/* <TrashIcon/> */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
+                                <button onClick={() => handleDelete(product)} className="bg-white rounded-full shadow-lg  transition-colors">
+                                    <img src={remove} alt='delete' />
                                 </button>
                             </div>
                             <img
@@ -164,8 +163,8 @@ const Product = () => {
                             />
                         </div>
                         <div className="px-3 py-2 bg-white text-left">
-                            <p className="font-bold text-gray-800">Design Code : <span className="font-medium text-gray-500">{product.design_code}</span></p>
-                            <p className="font-bold text-gray-800 mt-1">Price : <span className="font-medium text-gray-500">₹{product.totalamount}</span></p>
+                            <p className="font-bold text-[#334155]">Design Code : <span className="font-medium  text-[#64748B]">{product.design_code}</span></p>
+                            <p className="font-bold text-[#334155] mt-1">Price : <span className="font-medium text-[#64748B]">₹{product.totalamount}</span></p>
                         </div>
                     </div>
                 ))}

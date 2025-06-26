@@ -73,7 +73,7 @@ const ProductDetails = () => {
           </div>
           {/* Right: Product Info */}
           <div className="flex-1 flex flex-col gap-4">
-            <div className=' text-lg sm:text-xl font-bold text-[#1E293B]'>{product.detail}Diamond Ring</div>
+            <div className=' text-lg sm:text-xl font-bold text-[#1E293B]'>{product?.categoryname}</div>
             <div className="text-lg sm:text-xl font-bold">{product.name}</div>
             <div className="text-[#1E293B] font-semibold">Design Code : <span className="text-[#64748B]">{product.design_code}</span></div>
             <div className="text-[#1E293B] font-semibold">Price : <span className="text-[#64748B]">₹ {product.price}</span></div>

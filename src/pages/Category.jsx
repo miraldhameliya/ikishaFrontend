@@ -124,7 +124,7 @@ function Category() {
         {categories.map((cat, index) => (
           <div key={cat._id || cat.name} className="bg-white rounded-lg shadow p-3 flex flex-col">
             <div className="relative">
-              <img src={cat.categoryimage || Earing} alt={cat.categoryname} className="rounded-t-lg h-44 w-full object-cover" />
+              <img src={cat.categoryimage || Earing} alt={cat.categoryname} className="h-44 w-full object-cover" />
               <button className="absolute top-2 left-2 bg-white text-xs font-semibold shadow" onClick={() => handleEdit(cat)}>
                 <img src={edit} alt="Edit" className="w-17 h-7 inline-block" />
               </button>
@@ -132,7 +132,7 @@ function Category() {
             <div className="flex-1 flex flex-col justify-between p-2">
               <div>
                 <div className="flex items-center justify-between">
-                  <div className="font-bold text-[#334155]">{cat.name}</div>
+                  <div className="font-bold text-[#334155] text-30">{cat.name}</div>
                   <label className="inline-flex relative items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -144,11 +144,11 @@ function Category() {
                     <div className="absolute mt-5 left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-300 peer-checked:translate-x-5"></div>
                   </label>
                 </div>
-                <div className="text-xs text-[#64748B]">{cat.count} Products</div>
+                <div className="text-24 text-[#64748B]">{cat.count} Products</div>
                 <div className='border mt-3 border-[#C3C7BC]'></div>
               </div>
               <div className="flex items-center justify-between mt-2">
-                <a href="#" className="text-base text-[#64748B] font-semibold hover:underline">View All Product </a>
+                <a href="#" className="text-24 text-[#64748B] font-semibold hover:underline">View All Product </a>
                 <FaChevronRight className="text-[#64748B] text-lg" />
               </div>
             </div>

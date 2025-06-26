@@ -21,7 +21,7 @@ const getColumns = (handleEdit, handleToggleStatus, statusLoadingId) => [
           disabled={statusLoadingId === row._id}
           className="sr-only peer"
         />
-        <div className="w-8 h-4 bg-gray-200 rounded-full peer-checked:bg-green-900 transition-colors duration-200"></div>
+        <div className="w-8 h-4 bg-gray-200 rounded-full peer-checked:bg-[#303F26] transition-colors duration-200"></div>
         <div className={`absolute left-0.5 top-0.5 w-3 h-3 bg-white border border-gray-300 rounded-full shadow-md transform transition-transform duration-200 ${row.status ? 'translate-x-4' : ''}`}></div>
         {/* <div className="w-10 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-400 rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
           <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-4"></div> */}

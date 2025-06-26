@@ -101,59 +101,61 @@ const Header = ({ routeList }) => {
 
     return (
         <header className="sticky top-0 z-50 bg-white shadow">
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3">
-                {/* Logo */}
-                <img src={logo} alt="ikisha logo" className="h-12 sm:h-15" />
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 w-full">
+                {/* Left: Logo + Navigation (with scroll if needed) */}
+                <div className="flex items-center min-w-0 gap-4 flex-1">
+                    <div className="flex items-center flex-shrink-0">
+                        <img src={logo} alt="ikisha logo" className="h-10 sm:h-12 lg:h-14" />
+                    </div>
+                    <nav className="hidden lg:flex items-center gap-4 xl:gap-6 overflow-x-auto min-w-0 flex-1">
+                        {navLinks.map(link => {
+                            const isActive = location.pathname === link.path;
+                            const isHovered = hoveredLink === link.name;
+                            const iconToShow = (isActive || isHovered) ?
+                                iconMap[link.iconKey].active :
+                                iconMap[link.iconKey].default;
 
-                {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-start gap-6">
-                    {navLinks.map(link => {
-                        const isActive = location.pathname === link.path;
-                        const isHovered = hoveredLink === link.name;
-                        const iconToShow = (isActive || isHovered) ?
-                            iconMap[link.iconKey].active :
-                            iconMap[link.iconKey].default;
-
-                        return (
-                            <Link
-                                key={link.name}
-                                to={link.path}
-                                className={`font-bold flex items-center gap-2 px-3 py-3 rounded text-lg ${isActive ? 'text-[#303F26]' : 'text-[#1E293B] hover:text-[#303F26]'}`}
-                                style={isActive ? { color: '#303F26' } : {}}
-                                onMouseEnter={() => setHoveredLink(link.name)}
-                                onMouseLeave={() => setHoveredLink(null)}
-                            >
-                                <img src={iconToShow} alt={`${link.name} icon`} className="w-5 h-5" />
-                                {link.name}
-                            </Link>
-                        );
-                    })}
-                </nav>
-
-                {/* Right side buttons - Desktop */}
-                <div className="hidden md:flex items-center gap-4">
+                            return (
+                                <Link
+                                    key={link.name}
+                                    to={link.path}
+                                    className={`font-bold flex items-center gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded text-sm sm:text-base lg:text-lg transition-colors flex-shrink-0 ${isActive ? 'text-[#303F26]' : 'text-[#1E293B] hover:text-[#303F26]'}`}
+                                    onMouseEnter={() => setHoveredLink(link.name)}
+                                    onMouseLeave={() => setHoveredLink(null)}
+                                >
+                                    <img src={iconToShow} alt={`${link.name} icon`} className="w-4 h-4 sm:w-5 sm:h-5" />
+                                    <span className="hidden sm:inline">{link.name}</span>
+                                </Link>
+                            );
+                        })}
+                    </nav>
+                </div>
+                {/* Right: Buttons */}
+                <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-shrink-0">
                     {rightButtonProps && (
                         <button
-                            className="bg-[#303F26] text-white px-4 py-2 flex items-center gap-2 hover:bg-[#26371e]"
+                            className="bg-[#303F26] text-white px-3 py-2 flex items-center gap-2 hover:bg-[#26371e] rounded transition-colors text-sm sm:text-base whitespace-nowrap flex-shrink-0"
                             onClick={rightButtonProps.onClick}
                         >
-                            <img src={Plus} alt="Add" className="w-5 h-5" />
-                            <span className="font-semibold text-lg">{rightButtonProps.text}</span>
+                            <img src={Plus} alt="Add" className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="font-semibold">{rightButtonProps.text}</span>
                         </button>
                     )}
                     <button
                         onClick={handleLogout}
                         disabled={logoutLoading}
-                        className={`p-2 transition-colors ${logoutLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 rounded'}`}
+                        className={`p-2 transition-colors rounded flex-shrink-0 ${logoutLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
                         title="Logout"
                     >
-                        <img src={logout} alt="Logout" className="w-6 h-6" />
+                        <img src={logout} alt="Logout" className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
-
                 {/* Hamburger Menu Button - Mobile */}
-                <div className="md:hidden">
-                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500">
+                <div className="lg:hidden flex-shrink-0">
+                    <button 
+                        onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                        className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 transition-colors hover:bg-gray-100"
+                    >
                         <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
                         </svg>
@@ -163,38 +165,51 @@ const Header = ({ routeList }) => {
 
             {/* Mobile Menu */}
             {isMenuOpen && (
-                <div className="md:hidden bg-white shadow-lg">
-                    <nav className="flex flex-col px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <div className="lg:hidden bg-white shadow-lg border-t">
+                    <nav className="flex flex-col px-4 pt-2 pb-4 space-y-2">
                         {navLinks.map(link => (
                             <Link
                                 key={link.name}
                                 to={link.path}
                                 onClick={() => setIsMenuOpen(false)}
-                                className={`font-bold flex items-center gap-2 px-3 py-3 rounded text-lg ${location.pathname === link.path ? 'text-[#303F26] bg-gray-100' : 'text-[#1E293B] hover:text-[#303F26] hover:bg-gray-50'}`}
+                                className={`font-bold flex items-center gap-3 px-3 py-3 rounded-lg text-base transition-colors ${location.pathname === link.path ? 'text-[#303F26] bg-gray-100' : 'text-[#1E293B] hover:text-[#303F26] hover:bg-gray-50'}`}
                             >
-                                <img src={location.pathname === link.path ? iconMap[link.iconKey].active : iconMap[link.iconKey].default} alt={`${link.name} icon`} className="w-5 h-5" />
+                                <img 
+                                    src={location.pathname === link.path ? iconMap[link.iconKey].active : iconMap[link.iconKey].default} 
+                                    alt={`${link.name} icon`} 
+                                    className="w-5 h-5" 
+                                />
                                 {link.name}
                             </Link>
                         ))}
+                        
                         {rightButtonProps && (
-                            <div className="p-2">
+                            <div className="px-3 py-2">
                                 <button
-                                    className="w-full bg-[#303F26] text-white px-4 py-2 flex items-center justify-center gap-2 hover:bg-[#26371e]"
-                                    onClick={rightButtonProps.onClick}
+                                    className="w-full bg-[#303F26] text-white px-4 py-3 flex items-center justify-center gap-2 hover:bg-[#26371e] rounded-lg transition-colors"
+                                    onClick={() => {
+                                        rightButtonProps.onClick();
+                                        setIsMenuOpen(false);
+                                    }}
                                 >
                                     <img src={Plus} alt="Add" className="w-5 h-5" />
-                                    <span className="font-semibold text-lg">{rightButtonProps.text}</span>
+                                    <span className="font-semibold text-base">{rightButtonProps.text}</span>
                                 </button>
                             </div>
                         )}
-                        <div className="border-t my-2"></div>
+                        
+                        <div className="border-t border-gray-200 my-2"></div>
+                        
                         <button
-                            onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                            onClick={() => { 
+                                handleLogout(); 
+                                setIsMenuOpen(false); 
+                            }}
                             disabled={logoutLoading}
-                            className={`w-full text-left p-2 transition-colors flex items-center gap-2 ${logoutLoading ? 'opacity-50' : 'hover:bg-gray-100 rounded'}`}
+                            className={`w-full text-left px-3 py-3 transition-colors flex items-center gap-3 rounded-lg ${logoutLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
                         >
-                            <img src={logout} alt="Logout" className="w-6 h-6" />
-                            <span className="font-bold text-[#1E293B]">Logout</span>
+                            <img src={logout} alt="Logout" className="w-5 h-5" />
+                            <span className="font-bold text-[#1E293B] text-base">Logout</span>
                         </button>
                     </nav>
                 </div>

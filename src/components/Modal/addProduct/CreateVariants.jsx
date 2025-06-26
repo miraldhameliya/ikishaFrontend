@@ -1,34 +1,41 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice }) {
-  const [rows, setRows] = useState([
-    // Start with empty rows
-  ]);
-
+function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice, variants, setVariants }) {
   const handleDelete = idx => {
-    setRows(rows.filter((_, i) => i !== idx));
+    setVariants(variants.filter((_, i) => i !== idx));
   };
 
   const handleInputChange = (idx, field, value) => {
-    setRows(rows => rows.map((row, i) => i === idx ? { ...row, [field]: value } : row));
+    setVariants(variants => variants.map((row, i) => i === idx ? { ...row, [field]: value } : row));
   };
 
   const handleCreateVariant = () => {
-    const newVariant = [diamondType, diamondClarity, metalType].filter(Boolean).join('/');
-    if (!newVariant) {
-        // Optional: show a message to select options first
-        alert("Please select Diamond Type, Clarity, and Metal Type.");
-        return;
+    const variantLabel = [
+      diamondType?.type,
+      diamondClarity?.grade,
+      metalType?.name
+    ].filter(Boolean).join('/');
+    const newVariant = {
+      diamondtypeId: diamondType?._id || '',
+      diamondclaritiesId: diamondClarity?._id || '',
+      metaltypeId: metalType?._id || '',
+      variant: variantLabel,
+      metalprice: '',
+      diamondprice: diamondPrice ? diamondPrice.toString() : '0',
+      varientprice: '',
+    };
+    if (!newVariant.diamondtypeId || !newVariant.diamondclaritiesId || !newVariant.metaltypeId) {
+      alert("Please select Diamond Type, Clarity, and Metal Type.");
+      return;
     }
-    const formattedDiamondPrice = diamondPrice ? diamondPrice.toLocaleString() : '0';
-    setRows([...rows, { variant: newVariant, metalPrice: '', diamondPrice: formattedDiamondPrice, totalPrice: '' }]);
+    setVariants([...variants, newVariant]);
   };
 
   return (
     <div className="mt-6">
       <div className="flex justify-end mb-2">
         <button
-          className="bg-[#303f26] text-white px-4 py-2 rounded-md font-semibold hover:bg-green-900"
+          className="bg-[#303f26] text-white px-4 py-2 font-semibold"
           onClick={handleCreateVariant}
         >
           Create Variants
@@ -37,7 +44,7 @@ function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice }
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 border-collapse">
           <thead>
-            <tr className="bg-gray-100 text-gray-700 text-sm">
+            <tr className="bg-gray-100 text-[#334155] text-sm">
               <th className="p-1 border border-gray-300 text-center">Sr.no</th>
               <th className="p-1 border border-gray-300 text-center">Variants</th>
               <th className="p-1 border border-gray-300 text-center">Metal Price</th>
@@ -47,10 +54,10 @@ function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice }
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, idx) => (
+            {variants.map((row, idx) => (
               <tr key={idx}>
-                <td className="p-1 border border-gray-300 text-center">{String(idx + 1).padStart(2, '0')}</td>
-                <td className="p-1 border border-gray-300 text-center">
+                <td className="p-1 border border-gray-300 text-[#475569] text-center">{String(idx + 1).padStart(2, '0')}</td>
+                <td className="p-1 border border-gray-300 text-[#475569] text-center">
                   <input
                     type="text"
                     className="w-full text-center bg-transparent outline-none"
@@ -58,29 +65,28 @@ function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice }
                     onChange={e => handleInputChange(idx, 'variant', e.target.value)}
                   />
                 </td>
-                <td className="p-1 border border-gray-300 text-center">
+                <td className="p-1 border text-[#475569] border-gray-300 text-center">
                   <input
                     type="text"
                     className="w-full text-center bg-transparent outline-none"
-                    value={row.metalPrice}
-                    onChange={e => handleInputChange(idx, 'metalPrice', e.target.value)}
+                    value={row.metalprice}
+                    onChange={e => handleInputChange(idx, 'metalprice', e.target.value)}
                   />
                 </td>
-                <td className="p-1 border border-gray-300 text-center">
+                <td className="p-1 border text-[#475569] border-gray-300 text-center">
                   <input
                     type="text"
                     className="w-full text-center bg-transparent outline-none"
-                    value={row.diamondPrice}
+                    value={row.diamondprice}
                     readOnly
                   />
                 </td>
-                <td className="p-1 border border-gray-300 text-center">
+                <td className="p-1 border text-[#475569] border-gray-300 text-center">
                   <input
                     type="text"
                     className="w-full text-center bg-transparent outline-none"
-                    value={row.totalPrice}
-                    onChange={e => handleInputChange(idx, 'totalPrice', e.target.value)}
-                    // readOnly
+                    value={row.varientprice}
+                    onChange={e => handleInputChange(idx, 'varientprice', e.target.value)}
                   />
                 </td>
                 <td className="p-1 border border-gray-300 text-center">
@@ -96,9 +102,10 @@ function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice }
               </tr>
             ))}
             {/* Empty rows for visual spacing */}
-            {Array(6 - rows.length).fill().map((_, i) => (
+            {Array(6 - variants.length).fill().map((_, i) => (
               <tr key={`empty-${i}`}>
                 <td className="p-1 border border-gray-300 text-center">&nbsp;</td>
+                <td className="p-1 border border-gray-300 text-center"></td>
                 <td className="p-1 border border-gray-300 text-center"></td>
                 <td className="p-1 border border-gray-300 text-center"></td>
                 <td className="p-1 border border-gray-300 text-center"></td>
