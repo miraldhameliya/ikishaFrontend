@@ -1,5 +1,5 @@
 import { apiInstance } from "../../api/axiosApi";
-import { ADD_PRODUCT_LIST, ALLWOP, PRODUCT_DETAIL, PRODUCT_LIST, UPDATE_PRODUCT_LIST, VIEW_ONE_PRODUCT, VIEW_PRODUCT_LIST } from "../../api/constApi";
+import { ADD_PRODUCT_LIST, ALLWOP, PRODUCT_DETAIL, PRODUCT_LIST, UPDATE_PRODUCT_LIST, UPLOAD_IMAGES, VIEW_ONE_PRODUCT, VIEW_PRODUCT_LIST } from "../../api/constApi";
 
 export const fetchAllProduct = async ({ page = 1, limit = 10, search = "", categoryId = "" }) => {
     try {
@@ -36,6 +36,11 @@ export const allWop = async ({ page = 1, limit = 10, search = ''}) => {
 export const viewProduct = async (productId, diamondtypeId = '') => {
     const url = `/admin/products/getone?productId=${productId}${diamondtypeId ? `&diamondtypeId=${diamondtypeId}` : ''}`;
     const response = await apiInstance.get(url);
+    return response.data;
+}
+
+export const uploadImagesProduct = async (payload) => {
+    const response = await apiInstance.post(UPLOAD_IMAGES, payload);
     return response.data;
 }
 

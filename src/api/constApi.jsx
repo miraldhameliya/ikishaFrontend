@@ -53,3 +53,4 @@ export const VIEW_PRODUCT_LIST = '/admin/product/view';
 export const ALLWOP = '/admin/products/?search='
 export const VIEW_ONE_PRODUCT = '/admin/products/getone?productId=&diamondtypeId='
 export const PRODUCT_DETAIL = '/admin/products/getone';
+export const UPLOAD_IMAGES = '/admin/products/image';

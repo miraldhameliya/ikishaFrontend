@@ -4,7 +4,7 @@ import AddOtherCharges from './AddOtherCharges';
 import { FaChevronDown } from 'react-icons/fa';
 import CreateVariants from './CreateVariants';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { addProduct, updateProduct } from '../../../redux/services/ProductService';
+import { addProduct, updateProduct, uploadImagesProduct } from '../../../redux/services/ProductService';
 import { allWOPShape } from '../../../redux/services/diamondShape';
 import { allWOPClarity } from '../../../redux/services/diamondClarityservice';
 import { allWOPSize } from '../../../redux/services/sizeService';
@@ -12,6 +12,7 @@ import { allWopMetal } from '../../../redux/services/metalService';
 import { allWopType } from '../../../redux/services/diamondTypeService';
 import { allWop } from '../../../redux/services/categoryService';
 import select from '../../../assets/icon/Dropdown.png'
+import { UPLOAD_IMAGES } from '../../../api/constApi';
 const DIAMOND_LABGROWN_KEY = 'diamondRowsLabGrown';
 const DIAMOND_NATURAL_KEY = 'diamondRowsNatural';
 const OTHERCHARGE_KEY = 'otherChargeRows';
@@ -31,13 +32,13 @@ const InputField = ({ label, placeholder, value, onChange, ...props }) => (
 );
 
 // Minimal FilterSelect for this file
-const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSelect }) => (
+const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSelect, displayKey = "type" }) => (
     <div className="flex flex-col min-w-[180px] relative">
         <span className="text-xs font-semibold text-[#4B5563] mb-1">{label}</span>
         <div className="flex items-center bg-[#f5f7fa] rounded-md px-2 py-1 relative">
             {value && (
                 <span className="bg-green-300 text-white text-xs rounded px-2 py-0.5 flex items-center mr-2">
-                    {value}
+                    {typeof value === "object" ? value[displayKey] : value}
                     <button
                         className="ml-1 text-white hover:text-gray-200"
                         onClick={onClear}
@@ -63,7 +64,7 @@ const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSe
                         className="px-3 py-2 cursor-pointer hover:bg-gray-100"
                         onClick={() => onSelect(option)}
                     >
-                        {option.grade}
+                        {option[displayKey]}
                     </div>
                 ))}
             </div>
@@ -117,6 +118,7 @@ const AddProduct = () => {
     const [metalTypeOptions, setMetalTypeOptions] = useState([]);
     // Dropdown open states
     const [isDiamondTypeOpen, setDiamondTypeOpen] = useState(false);
+    console.log("isDiamondTypeOpen",isDiamondTypeOpen); 
     const [isClarityOpen, setClarityOpen] = useState(false);
     const [isMetalTypeOpen, setMetalTypeOpen] = useState(false);
     const [images, setImages] = useState([]);
@@ -259,12 +261,10 @@ const AddProduct = () => {
     // Image upload handler (placeholder logic)
     const handleImageChange = async (e) => {
         const files = Array.from(e.target.files);
-        // TODO: Replace this with your actual upload logic (e.g., Cloudinary, server, etc.)
-        // For now, just use local object URLs for preview (not for production)
         setUploading(true);
         try {
-            // Simulate upload and get URLs
-            const urls = files.map(file => URL.createObjectURL(file));
+            // Use the uploadImages helper function
+            const urls = await uploadImages(files);
             setImages(prev => [...prev, ...urls]);
         } finally {
             setUploading(false);
@@ -280,9 +280,9 @@ const AddProduct = () => {
             const diamond_details = [
                 ...draftLabGrownRows.map(row => ({
                     // ...row,
-                    diamondtypeId: row.diamondtypeId || '',
+                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : '',
                     diamondshapeId: row.diamondshapeId || '',
-                    diamondclaritiesId: row.diamondclaritiesId || '',
+                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : '',
                     sizeid: row.sizeid || '',
                     rate: row.rate,
                     weight: row.weight,
@@ -290,9 +290,9 @@ const AddProduct = () => {
                 })),
                 ...draftNaturalRows.map(row => ({
                     // ...row,
-                    diamondtypeId: row.diamondtypeId || '',
+                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : '',
                     diamondshapeId: row.diamondshapeId || '',
-                    diamondclaritiesId: row.diamondclaritiesId || '',
+                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : '',
                     sizeid: row.sizeid || '',
                     rate: row.rate,
                     weight: row.weight,
@@ -307,6 +307,7 @@ const AddProduct = () => {
             }));
             // Build images array (only selected images)
             const imagesArr = images.map(url => ({ url }));
+            console.log("imagesArr",imagesArr);
             // Map formState to backend keys
             const payload = {
                 productId: '', // If editing, set the product ID
@@ -324,6 +325,9 @@ const AddProduct = () => {
                 images: imagesArr,
                 diamond_details,
                 other_charges,
+                diamondtypeId: typeof diamondType === "object" ? diamondType._id : '',
+                diamondclaritiesId: typeof diamondClarity === "object" ? diamondClarity._id : '',
+                metaltypeId: typeof metalType === "object" ? metalType._id : '',
             };
             if (editingProduct) {
                 payload.productId = editingProduct._id;
@@ -342,6 +346,20 @@ const AddProduct = () => {
         setDraftOtherChargeRows([]);
     };
 
+    const uploadImages = async (files) => {
+        const formData = new FormData();
+        files.forEach(file => {
+            formData.append('image', file);
+        });
+        const res = await uploadImagesProduct(formData);
+        console.log("res", res);
+        // Extract URLs from the images array
+        return (res.Data.images || []).map(img => img.url);
+    };
+    console.log("diamondType",diamondType);
+    console.log("diamondClarity",diamondClarity);
+    console.log("metalType",metalType);
+    console.log("totalDiamondPrice",totalDiamondPrice);
     return (
         <div className="p-3 bg-[#eff0f5] min-h-screen">
             <div className="bg-white p-3 rounded-lg shadow-lg">
@@ -464,7 +482,7 @@ const AddProduct = () => {
                         <div className="flex gap-6 mt-4">
                             <FilterSelect
                                 label="Diamond Type"
-                                value={diamondType}
+                                value={typeof diamondType === "object" ? diamondType._id : diamondType}
                                 onClear={() => setDiamondType('')}
                                 onDropdown={() => setDiamondTypeOpen(!isDiamondTypeOpen)}
                                 isOpen={isDiamondTypeOpen}
@@ -473,6 +491,7 @@ const AddProduct = () => {
                                     setDiamondType(option);
                                     setDiamondTypeOpen(false);
                                 }}
+                                displayKey="type"
                             />
                             <FilterSelect
                                 label="Diamond Clarity"
@@ -485,6 +504,7 @@ const AddProduct = () => {
                                     setDiamondClarity(option);
                                     setClarityOpen(false);
                                 }}
+                                displayKey="grade"
                             />
                             <FilterSelect
                                 label="Metal Type"
@@ -497,6 +517,7 @@ const AddProduct = () => {
                                     setMetalType(option);
                                     setMetalTypeOpen(false);
                                 }}
+                                displayKey="name"
                             />
                         </div>
                         <div>

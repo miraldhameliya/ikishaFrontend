@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 import editIcon from '../assets/icon/edit.png';
 import productImage from '../assets/icon/nosepin.png';
-import { fetchAllProduct, viewProduct, viewProductDetail } from '../redux/services/ProductService';
+import { fetchAllProduct, viewProductDetail } from '../redux/services/ProductService';
 
 
 const Product = () => {
@@ -53,27 +53,24 @@ const Product = () => {
     };
 
     const handleProductClick = async (product) => {
+        console.log("product",product);
+        console.log("product.diamondtypeId",product.diamond_details);
+        console.log("product.diamond_details[0]",product.diamond_details.diamondclaritiesId._id);
+        console.log("product.diamondclaritiesId",product.diamondclaritiesId);
+        console.log("product.metaltypeId",product.metaltypeId);
         setDetailsLoading(true);
         setDetailsError(null);
         try {
-            // Try to get IDs from diamond_details[0]
-            let diamondtypeId = '';
-            let diamondclaritiesId = '';
-            let metaltypeId = '';
-            if (product.diamond_details && product.diamond_details.length > 0) {
-                const details = product.diamond_details[0];
-                diamondtypeId = details.diamondtypeId?._id || '';
-                diamondclaritiesId = details.diamondclaritiesId?._id || details.diamondclaritiesId || '';
-                metaltypeId = details.metaltypeId?._id || details.metaltypeId || '';
-            }
-            // Fallback: try from varient[0] if needed
-            if ((!diamondtypeId || !diamondclaritiesId || !metaltypeId) && product.varient && product.varient.length > 0) {
-                const variant = product.varient[0];
-                diamondtypeId = diamondtypeId || (variant.diamondtypeId?._id || '');
-                diamondclaritiesId = diamondclaritiesId || (variant.diamondclaritiesId?._id || variant.diamondclaritiesId || '');
-                metaltypeId = metaltypeId || (variant.metaltypeId?._id || variant.metaltypeId || '');
-            }
-            if (!diamondtypeId || !diamondclaritiesId || !metaltypeId) {
+            const diamondDetails = product.diamond_details && product.diamond_details[0];
+            const diamondclaritiesId = diamondDetails?.diamondclaritiesId?._id;
+            const diamondshapeId = diamondDetails?.diamondshapeId?._id;
+            const diamondtypeId = diamondDetails?.diamondtypeId?._id;
+
+            console.log("diamondclaritiesId:", diamondclaritiesId);
+            console.log("diamondshapeId:", diamondshapeId);
+            console.log("diamondtypeId:", diamondtypeId);
+
+            if (!diamondtypeId || !diamondclaritiesId || !diamondshapeId) {
                 setDetailsError('Required IDs not found in product data');
                 setDetailsLoading(false);
                 return;
@@ -82,7 +79,7 @@ const Product = () => {
                 productId: product._id,
                 diamondtypeId,
                 diamondclaritiesId,
-                metaltypeId
+                metaltypeId: "6856579826ffa68c8652f9fe"
             };
             const data = await viewProductDetail(payload);
             navigate('/product-details', { state: { product: data.Data } });
