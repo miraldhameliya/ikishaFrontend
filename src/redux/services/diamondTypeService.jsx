@@ -34,8 +34,8 @@ export const fetchDiamondTypes = async (search = '') => {
   }
 };
 
-export const allWopType = async ({ page = 1, limit = 10, search = '' }) => {
-  const payload = { page, limit, search };
-  const response = await apiInstance.get(ALLWOP_TYPE, { data: payload });
+export const allWopType = async ({ search = '' }) => {
+  // const payload = { page, limit, search };
+  const response = await apiInstance.get(ALLWOP_TYPE, {  search : ''});
   return response.data;
 }

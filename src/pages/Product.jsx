@@ -174,3 +174,33 @@ const Product = () => {
 };
 
 export default Product;
+
+
+
+//  <div className="p-4 bg-[#eff0f5]">
+//             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
+//                 {products.map((product) => (
+//                     <div key={product._id} className="group relative bg-white shadow-md overflow-hidden transition-transform transform hover:-translate-y-1">
+//                         <div className="h-56 bg-[#ffffff] flex items-center justify-center overflow-hidden relative">
+//                             <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2">
+//                                 <button onClick={() => handleEdit(product)} className="bg-white p-1.5 rounded-full shadow-lg hover:bg-gray-200 transition-colors">
+//                                     <img src={editIcon} alt="Edit" className="w-6 h-6" />
+//                                 </button>
+//                                 <button onClick={() => handleDelete(product)} className="bg-white rounded-full shadow-lg  transition-colors">
+//                                     <img src={remove} alt='delete' />
+//                                 </button>
+//                             </div>
+//                             <img
+//                                 src={(product.images && product.images[0]?.url) || productImage}
+//                                 alt={`Design ${product.design_code}`}
+//                                 className="p-3 w-[30rem] h-[14rem] cursor-pointer"
+//                                 onClick={() => handleProductClick(product)}
+//                             />
+//                         </div>
+//                         <div className="px-3 py-2 bg-white text-left">
+//                             <p className="font-bold text-[#334155]">Design Code : <span className="font-medium  text-[#64748B]">{product.design_code}</span></p>
+//                             <p className="font-bold text-[#334155] mt-1">Price : <span className="font-medium text-[#64748B]">₹{product.totalamount}</span></p>
+//                         </div>
+//                     </div>
+//                 ))}
+//             </div>

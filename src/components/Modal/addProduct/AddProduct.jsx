@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DiamondDetailsTable from './DiamondDetailTable';
 import AddOtherCharges from './AddOtherCharges';
 import { FaChevronDown } from 'react-icons/fa';
@@ -11,7 +11,7 @@ import { allWOPSize } from '../../../redux/services/sizeService';
 import { allWopMetal } from '../../../redux/services/metalService';
 import { allWopType } from '../../../redux/services/diamondTypeService';
 import { allWop } from '../../../redux/services/categoryService';
-import select from '../../../assets/icon/Dropdown.png'
+import SimpleDropdown from './SimpleDropdown';
 
 const InputField = ({ label, placeholder, value, onChange, ...props }) => (
     <div className="flex flex-col">
@@ -24,49 +24,6 @@ const InputField = ({ label, placeholder, value, onChange, ...props }) => (
             onChange={onChange}
             {...props}
         />
-    </div>
-);
-
-// Minimal FilterSelect for this file
-const FilterSelect = ({ label, value, onClear, onDropdown, options, isOpen, onSelect, displayKey = "type", placeholder }) => (
-    <div className="flex flex-col min-w-[180px] relative">
-        <span className="text-xs font-semibold text-[#475569] mb-1">{label}</span>
-        <div className="flex items-center bg-[#f5f7fa] rounded-md px-2 py-1 relative">
-            {value ? (
-                <span className="bg-[#81C995] text-white text-xs rounded px-2 py-0.5 flex items-center mr-2">
-                    {typeof value === "object" ? value[displayKey] : value}
-                    <button
-                        className="ml-1 text-white hover:text-gray-200"
-                        onClick={onClear}
-                        type="button"
-                    >
-                        ×
-                    </button>
-                </span>
-            ) : (
-                <span className="text-[#94A3B8] text-xs mr-2">{placeholder}</span>
-            )}
-            <button
-                className="ml-auto text-gray-400 hover:text-gray-600"
-                onClick={onDropdown}
-                type="button"
-            >
-                <FaChevronDown size={14} />
-            </button>
-        </div>
-        {isOpen && (
-            <div className="absolute top-full mt-1 w-full bg-white border border-[#475569] shadow-lg z-10">
-                {options.map(option => (
-                    <div
-                        key={option._id}
-                        className="px-3 py-2 cursor-pointer text-[#475569] hover:bg-gray-200"
-                        onClick={() => onSelect(option)}
-                    >
-                        {option[displayKey]}
-                    </div>
-                ))}
-            </div>
-        )}
     </div>
 );
 
@@ -101,22 +58,21 @@ const AddProduct = () => {
     });
 
     // Draft (editable) state
-    const [draftLabGrownRows, setDraftLabGrownRows] = useState([]);
-    const [draftNaturalRows, setDraftNaturalRows] = useState([]);
+    const [diamondRows, setDiamondRows] = useState({});
     const [draftOtherChargeRows, setDraftOtherChargeRows] = useState([]);
     // Filter states for the new UI
-    const [diamondType, setDiamondType] = useState('');
-    const [diamondClarity, setDiamondClarity] = useState('');
-    const [metalType, setMetalType] = useState('');
-    const [activeTab, setActiveTab] = useState('Lab-Grown');
+    const [diamondTypes, setDiamondTypes] = useState([]);
+    const [diamondClarities, setDiamondClarities] = useState([]);
+    const [metalTypes, setMetalTypes] = useState([]);
+    const [activeTab, setActiveTab] = useState('');
     const [shapeOptions, setShapeOptions] = useState([]);
     const [clarityOptions, setClarityOptions] = useState([]);
     const [sizeOptions, setSizeOptions] = useState([]);
     const [diamondTypeOptions, setDiamondTypeOptions] = useState([]);
+    // console.log("diamondTypeOption====", diamondTypeOptions);
     const [metalTypeOptions, setMetalTypeOptions] = useState([]);
-    // Dropdown open states
     const [isDiamondTypeOpen, setDiamondTypeOpen] = useState(false);
-    console.log("isDiamondTypeOpen", isDiamondTypeOpen);
+    // console.log("isDiamondTypeOpen", isDiamondTypeOpen);
     const [isClarityOpen, setClarityOpen] = useState(false);
     const [isMetalTypeOpen, setMetalTypeOpen] = useState(false);
     const [images, setImages] = useState([]);
@@ -124,6 +80,7 @@ const AddProduct = () => {
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [variants, setVariants] = useState([]);
     const [isCategoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -132,14 +89,14 @@ const AddProduct = () => {
                 const res = await allWop({ search: '' });
                 if (res && res.Data) {
                     setCategoryOptions(res.Data);
-                    console.log("Category options:", res.Data);
+                    // console.log("Category options:", res.Data);
                 }
                 // Fetch Shapes for table
                 const shapeData = await allWOPShape({ search: '' });
                 if (shapeData && shapeData.Data) setShapeOptions(shapeData.Data);
                 // Fetch Clarities for table and filter
                 const clarityData = await allWOPClarity({ search: '' });
-                console.log(clarityData);
+                // console.log(clarityData);
                 if (clarityData && clarityData.Data) {
                     setClarityOptions(clarityData.Data);
                 }
@@ -153,11 +110,33 @@ const AddProduct = () => {
                 const metalData = await allWopMetal({ search: '' });
                 if (metalData && metalData.Data) setMetalTypeOptions(metalData.Data);
             } catch (err) {
-                console.error("Failed to fetch diamond details", err);
+                // console.error("Failed to fetch diamond details", err);
             }
         };
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (diamondTypeOptions.length > 0 && !activeTab) {
+            setActiveTab(diamondTypeOptions[0].type);
+        }
+        // eslint-disable-next-line
+    }, [diamondTypeOptions, activeTab]);
+
+    useEffect(() => {
+        setDiamondRows(prev => {
+            let changed = false;
+            const newRows = { ...prev };
+            diamondTypeOptions.forEach(type => {
+                if (!newRows[type.type]) {
+                    newRows[type.type] = [];
+                    changed = true;
+                }
+            });
+            // Only update if something actually changed
+            return changed ? newRows : prev;
+        });
+    }, [diamondTypeOptions]);
 
     const calculateTotalPrice = (rows) => {
         return rows.reduce((sum, row) => {
@@ -166,49 +145,37 @@ const AddProduct = () => {
         }, 0);
     };
 
-    const activeDiamondRows = activeTab === 'Lab-Grown' ? draftLabGrownRows : draftNaturalRows;
+    const activeDiamondRows = diamondRows[activeTab] || [];
     const totalDiamondPrice = calculateTotalPrice(activeDiamondRows);
 
+    // Calculate total price for each diamond type tab
+    const diamondPriceMap = {};
+    diamondTypeOptions.forEach(type => {
+        const rows = diamondRows[type.type] || [];
+        diamondPriceMap[type._id] = calculateTotalPrice(rows);
+    });
 
     // Diamond Table logic
     const handleTabChange = (tab) => {
         setActiveTab(tab);
-        let diamondtypeId = '';
-        if (tab === 'Lab-Grown') {
-            const found = diamondTypeOptions.find(opt => opt.type === 'Lab-Grown');
-            diamondtypeId = found?._id || '';
-            setDraftLabGrownRows(rows => rows.map(row => ({ ...row, diamondtypeId })));
-        } else {
-            const found = diamondTypeOptions.find(opt => opt.type === 'Natural');
-            diamondtypeId = found?._id || '';
-            setDraftNaturalRows(rows => rows.map(row => ({ ...row, diamondtypeId })));
-        }
     };
+
     const handleAddDiamondRow = () => {
-        let diamondtypeId = '';
-        if (activeTab === 'Lab-Grown') {
-            const found = diamondTypeOptions.find(opt => opt.type === 'Lab-Grown');
-            diamondtypeId = found?._id || '';
-            setDraftLabGrownRows([
-                ...draftLabGrownRows,
-                { shape: '', clarity: '', size: '', rate: '', weight: '', totalPrice: '', diamondtypeId }
-            ]);
-        } else {
-            const found = diamondTypeOptions.find(opt => opt.type === 'Natural');
-            diamondtypeId = found?._id || '';
-            setDraftNaturalRows([
-                ...draftNaturalRows,
-                { shape: '', clarity: '', size: '', rate: '', weight: '', totalPrice: '', diamondtypeId }
-            ]);
-        }
+        const found = diamondTypeOptions.find(opt => opt.type === activeTab);
+        const diamondtypeId = found?._id || '';
+        setDiamondRows(prev => ({
+            ...prev,
+            [activeTab]: [...(prev[activeTab] || []), { shape: '', clarity: '', size: '', rate: '', weight: '', totalPrice: '', diamondtypeId }]
+        }));
     };
+
     const handleDeleteDiamondRow = (idx) => {
-        if (activeTab === 'Lab-Grown') {
-            setDraftLabGrownRows(draftLabGrownRows.filter((_, i) => i !== idx));
-        } else {
-            setDraftNaturalRows(draftNaturalRows.filter((_, i) => i !== idx));
-        }
+        setDiamondRows(prev => ({
+            ...prev,
+            [activeTab]: prev[activeTab].filter((_, i) => i !== idx)
+        }));
     };
+
     const handleDiamondRowChange = (idx, field, value) => {
         const updateRows = (rows) => rows.map((row, i) => {
             if (i !== idx) return row;
@@ -225,11 +192,10 @@ const AddProduct = () => {
             }
             return updated;
         });
-        if (activeTab === 'Lab-Grown') {
-            setDraftLabGrownRows(updateRows);
-        } else {
-            setDraftNaturalRows(updateRows);
-        }
+        setDiamondRows(prev => ({
+            ...prev,
+            [activeTab]: updateRows(prev[activeTab] || [])
+        }));
     };
 
     // Other Charges Table logic
@@ -275,28 +241,39 @@ const AddProduct = () => {
     };
 
     // Save/Cancel logic
+    const validateForm = () => {
+        const newErrors = {};
+        if (!formState.category) newErrors.category = 'Category is required';
+        if (!formState.designNo) newErrors.designNo = 'Design No. is required';
+        if (!formState.labelNo) newErrors.labelNo = 'Label No. is required';
+        if (!formState.gwt) newErrors.gwt = 'Gross Weight is required';
+        if (!formState.dwt) newErrors.dwt = 'Diamond Weight is required';
+        if (!formState.owt) newErrors.owt = 'Other Weight is required';
+        if (!formState.labourPricePerGm) newErrors.labourPricePerGm = 'Labour Price/gm is required';
+        // Add more validations as needed
+        return newErrors;
+    };
+
     const handleSave = async () => {
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        setErrors({});
         try {
-            const diamond_details = [
-                ...draftLabGrownRows.map(row => ({
-                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : row.diamondtypeId || '',
-                    diamondshapeId: row.diamondshapeId || '',
-                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : row.diamondclaritiesId || '',
-                    sizeid: row.sizeid || '',
-                    rate: row.rate,
-                    weight: row.weight,
-                    price: row.totalPrice?.toString().replace(/,/g, '') || '0',
-                })),
-                ...draftNaturalRows.map(row => ({
-                    diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : row.diamondtypeId || '',
-                    diamondshapeId: row.diamondshapeId || '',
-                    diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : row.diamondclaritiesId || '',
-                    sizeid: row.sizeid || '',
-                    rate: row.rate,
-                    weight: row.weight,
-                    price: row.totalPrice?.toString().replace(/,/g, '') || '0',
-                })),
-            ];
+            const diamond_details = Object.entries(diamondRows)
+                .flatMap(([tab, rows]) =>
+                    rows.map(row => ({
+                        diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : row.diamondtypeId || '',
+                        diamondshapeId: row.diamondshapeId || '',
+                        diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : row.diamondclaritiesId || '',
+                        sizeid: row.sizeid || '',
+                        rate: row.rate,
+                        weight: row.weight,
+                        price: row.totalPrice?.toString().replace(/,/g, '') || '0',
+                    }))
+                );
             // Build other_charges array
             const other_charges = draftOtherChargeRows.map(row => ({
                 product: row.product,
@@ -306,9 +283,20 @@ const AddProduct = () => {
             // Build images array (only selected images)
             const imagesArr = images.map(url => ({ url }));
             // Collect diamond_type, diamond_clarity, metal_type as arrays (single selection)
-            const diamondTypeIds = diamondType ? [typeof diamondType === "object" ? diamondType._id : diamondType] : [];
-            const diamondClarityIds = diamondClarity ? [typeof diamondClarity === "object" ? diamondClarity._id : diamondClarity] : [];
-            const metalTypeIds = metalType ? [typeof metalType === "object" ? metalType._id : metalType] : [];
+            const diamondTypeIds = diamondTypes.map(type => typeof type === "object" ? type._id : type);
+            const diamondClarityIds = diamondClarities.map(clarity => typeof clarity === "object" ? clarity._id : clarity);
+            const metalTypeIds = metalTypes.map(type => typeof type === "object" ? type._id : type);
+            // Calculate varientprice for each variant
+            const labourPriceNum = parseFloat(formState.labourPrice) || 0;
+            const otherPriceNum = parseFloat(formState.otherPrice) || 0;
+            const variantsWithPrice = variants.map(v => {
+                const metalPriceNum = parseFloat(v.metalprice) || 0;
+                const diamondPriceNum = parseFloat(v.diamondprice) || 0;
+                return {
+                    ...v,
+                    varientprice: (labourPriceNum + otherPriceNum + metalPriceNum + diamondPriceNum).toFixed(2)
+                };
+            });
             // Map formState to backend keys
             const payload = {
                 productId: '', // If editing, set the product ID
@@ -329,7 +317,7 @@ const AddProduct = () => {
                 diamond_type: diamondTypeIds,
                 diamond_clarity: diamondClarityIds,
                 metal_type: metalTypeIds,
-                varient: variants,
+                varient: variantsWithPrice,
             };
             if (editingProduct) {
                 payload.productId = editingProduct._id;
@@ -339,12 +327,11 @@ const AddProduct = () => {
             }
             navigate('/product');
         } catch (error) {
-            console.error("Failed to save product", error);
+            // console.error("Failed to save product", error);
         }
     };
     const handleCancel = () => {
-        setDraftLabGrownRows([]);
-        setDraftNaturalRows([]);
+        setDiamondRows({});
         setDraftOtherChargeRows([]);
     };
 
@@ -354,14 +341,14 @@ const AddProduct = () => {
             formData.append('image', file);
         });
         const res = await uploadImagesProduct(formData);
-        console.log("res", res);
+        // console.log("res", res);
         // Extract URLs from the images array
         return (res.Data.images || []).map(img => img.url);
     };
-    console.log("diamondType", diamondType);
-    console.log("diamondClarity", diamondClarity);
-    console.log("metalType", metalType);
-    console.log("totalDiamondPrice", totalDiamondPrice);
+    // console.log("diamondType", diamondType);
+    // console.log("diamondClarity", diamondClarity);
+    // console.log("metalType", metalType);
+    // console.log("totalDiamondPrice", totalDiamondPrice);
     return (
         <div className="p-5 bg-[#eff0f5] min-h-screen">
             <div className="bg-white p-3 rounded-lg ">
@@ -373,41 +360,20 @@ const AddProduct = () => {
                             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"> */}
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div className="relative flex flex-col">
-                                    <label className="mb-1 text-sm font-semibold text-[#475569]">Category</label>
-                                    <button
-                                        type="button"
-                                        className="text-[#94A3B8] bg-[#F3F4F9] hover:bg-gray-200 focus:ring-2 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-left flex items-center justify-between w-full"
-                                        onClick={() => setCategoryDropdownOpen((open) => !open)}
-                                    >
-                                        {formState.category
-                                            ? categoryOptions.find((cat) => cat._id === formState.category)?.categoryname || "Select Category"
-                                            : "Select Category"}
-                                        <svg className="w-2.5 h-2.5 ml-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
-                                        </svg>
-                                    </button>
-                                    {isCategoryDropdownOpen && (
-                                        <div className="absolute z-10 mt-18 bg-white divide-y divide-gray-100 rounded-lg shadow w-full">
-                                            <ul className="py-2 text-sm text-[#94A3B8]" aria-labelledby="dropdownDefaultButton">
-                                                {categoryOptions.map((cat) => (
-                                                    <li key={cat._id}>
-                                                        <button
-                                                            type="button"
-                                                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                                                            onClick={() => {
-                                                                setFormState((f) => ({ ...f, category: cat._id }));
-                                                                setCategoryDropdownOpen(false);
-                                                            }}
-                                                        >
-                                                            {cat.categoryname}
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
+                                    {/* <label className="mb-1 text-sm font-semibold text-[#475569]">Category</label> */}
+                                    <SimpleDropdown
+                                        label="Category"
+                                        options={categoryOptions}
+                                        value={formState.category}
+                                        onChange={cat => setFormState(f => ({ ...f, category: cat._id }))}
+                                        displayKey="categoryname"
+                                        placeholder="Select Category"
+                                        // className='text-lg'
+                                    />
+                                    {errors.category && <div className="text-red-500 text-xs mt-1">{errors.category}</div>}
                                 </div>
                                 <InputField label="Laboure Price/gm" placeholder="Enter price/gm" value={formState.labourPricePerGm} onChange={e => setFormState(f => ({ ...f, labourPricePerGm: e.target.value }))} />
+                                {errors.labourPricePerGm && <div className="text-red-500 text-xs mt-1">{errors.labourPricePerGm}</div>}
                                 <InputField label="Laboure Price" placeholder="Auto" value={formState.labourPrice} readOnly />
                                 <InputField label="Other Price" placeholder="Auto" value={formState.otherPrice} readOnly />
                                 {/* <InputField label="Total Amount" placeholder="Enter price" value={formState.totalAmount} onChange={e => setFormState(f => ({ ...f, totalAmount: e.target.value }))} /> */}
@@ -415,13 +381,18 @@ const AddProduct = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <InputField label="Design No." placeholder="Enter design no" value={formState.designNo} onChange={e => setFormState(f => ({ ...f, designNo: e.target.value }))} />
+                                {errors.designNo && <div className="text-red-500 text-xs mt-1">{errors.designNo}</div>}
                                 <InputField label="G. WT" placeholder="Enter weight" value={formState.gwt} onChange={e => setFormState(f => ({ ...f, gwt: e.target.value }))} />
+                                {errors.gwt && <div className="text-red-500 text-xs mt-1">{errors.gwt}</div>}
                                 <InputField label="D. WT" placeholder="Enter weight" value={formState.dwt} onChange={e => setFormState(f => ({ ...f, dwt: e.target.value }))} />
+                                {errors.dwt && <div className="text-red-500 text-xs mt-1">{errors.dwt}</div>}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <InputField label="Label No." placeholder="Enter label no" value={formState.labelNo} onChange={e => setFormState(f => ({ ...f, labelNo: e.target.value }))} />
+                                {errors.labelNo && <div className="text-red-500 text-xs mt-1">{errors.labelNo}</div>}
                                 <InputField label="N. WT" placeholder="Auto" value={formState.nwt} readOnly />
                                 <InputField label="O. WT" placeholder="Enter weight" value={formState.owt} onChange={e => setFormState(f => ({ ...f, owt: e.target.value }))} />
+                                {errors.owt && <div className="text-red-500 text-xs mt-1">{errors.owt}</div>}
                             </div>
                         </div>
                         <div className="flex-1 flex flex-col gap-8">
@@ -437,12 +408,13 @@ const AddProduct = () => {
                                 <DiamondDetailsTable
                                     activeTab={activeTab}
                                     onTabChange={handleTabChange}
-                                    rows={activeTab === 'Lab-Grown' ? draftLabGrownRows : draftNaturalRows}
+                                    rows={activeDiamondRows}
                                     onDeleteRow={handleDeleteDiamondRow}
                                     onRowChange={handleDiamondRowChange}
                                     shapeOptions={shapeOptions}
                                     clarityOptions={clarityOptions}
                                     sizeOptions={sizeOptions}
+                                    diamondTypeOptions={diamondTypeOptions}
                                 />
                             </div>
                             <div>
@@ -462,10 +434,6 @@ const AddProduct = () => {
                                     setRows={setDraftOtherChargeRows}
                                 />
                             </div>
-                            {/* <div className="flex justify-end gap-4">
-                                <button className="px-6 py-2 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 font-semibold" onClick={handleCancel}>Cancel</button>
-                                <button className="px-6 py-2 rounded-md text-white bg-green-900 hover:bg-green-800 font-semibold" onClick={handleSave}>Save</button>
-                            </div> */}
                         </div>
                     </div>
                     {/* Right Column */}
@@ -497,64 +465,51 @@ const AddProduct = () => {
                         </div>
 
                         <div className="flex gap-6 mt-4">
-                            <FilterSelect
+                            <SimpleDropdown
                                 label="Diamond Type"
-                                value={typeof diamondType === "object" ? diamondType.type : diamondType}
-                                onClear={() => setDiamondType('')}
-                                onDropdown={() => setDiamondTypeOpen(!isDiamondTypeOpen)}
-                                isOpen={isDiamondTypeOpen}
                                 options={diamondTypeOptions}
-                                onSelect={(option) => {
-                                    setDiamondType(option);
-                                    setDiamondTypeOpen(false);
-                                }}
+                                value={diamondTypes}
+                                onChange={setDiamondTypes}
                                 displayKey="type"
-                                placeholder="Enter Diamond Type"
+                                placeholder="Select Diamond Type"
+                                multi={true}
                             />
-                            <FilterSelect
+                            <SimpleDropdown
                                 label="Diamond Clarity"
-                                value={diamondClarity}
-                                placeholder="Enter Clarity"
-                                onClear={() => setDiamondClarity('')}
-                                onDropdown={() => setClarityOpen(!isClarityOpen)}
-                                isOpen={isClarityOpen}
                                 options={clarityOptions}
-                                onSelect={(option) => {
-                                    setDiamondClarity(option);
-                                    setClarityOpen(false);
-                                }}
+                                value={diamondClarities}
+                                onChange={setDiamondClarities}
                                 displayKey="grade"
+                                placeholder="Select Clarity"
+                                multi={true}
                             />
-                            <FilterSelect
+                            <SimpleDropdown
                                 label="Metal Type"
-                                value={metalType}
-                                onClear={() => setMetalType('')}
-                                onDropdown={() => setMetalTypeOpen(!isMetalTypeOpen)}
-                                isOpen={isMetalTypeOpen}
                                 options={metalTypeOptions}
-                                onSelect={(option) => {
-                                    setMetalType(option);
-                                    setMetalTypeOpen(false);
-                                }}
+                                value={metalTypes}
+                                onChange={setMetalTypes}
                                 displayKey="name"
-                                placeholder="Enter Metal Type"
-
+                                placeholder="Select Metal Type"
+                                multi={true}
                             />
                         </div>
                         <div>
                             <CreateVariants
-                                diamondType={diamondType}
-                                diamondClarity={diamondClarity}
-                                metalType={metalType}
-                                diamondPrice={totalDiamondPrice}
+                                diamondTypes={diamondTypes}
+                                diamondClarities={diamondClarities}
+                                metalTypes={metalTypes}
+                                diamondPriceMap={diamondPriceMap}
                                 variants={variants}
                                 setVariants={setVariants}
+                                labourPrice={formState.labourPrice}
+                                otherPrice={formState.otherPrice}
                             />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        // <div>test</div>
     );
 };
 

@@ -1,34 +1,78 @@
 import React from 'react';
 
-function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice, variants, setVariants }) {
+function CreateVariants({ diamondTypes = [], diamondClarities = [], metalTypes = [], diamondPriceMap = {}, variants, setVariants, labourPrice = 0, otherPrice = 0 }) {
   const handleDelete = idx => {
     setVariants(variants.filter((_, i) => i !== idx));
   };
 
   const handleInputChange = (idx, field, value) => {
-    setVariants(variants => variants.map((row, i) => i === idx ? { ...row, [field]: value } : row));
+    setVariants(variants => variants.map((row, i) => {
+      if (i !== idx) return row;
+      // If editing total price, store as manualTotalPrice
+      if (field === 'manualTotalPrice') {
+        return { ...row, manualTotalPrice: value };
+      }
+      // If editing any other field, clear manualTotalPrice
+      const updatedRow = { ...row, [field]: value };
+      if (row.manualTotalPrice) delete updatedRow.manualTotalPrice;
+      return updatedRow;
+    }));
   };
 
+  // Helper: cartesian product
+  function cartesian(arrays) {
+    // Defensive: ensure all are arrays and not empty
+    if (!Array.isArray(arrays) || arrays.length === 0) return [];
+    for (let arr of arrays) {
+      if (!Array.isArray(arr) || arr.length === 0) return [];
+    }
+    return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [].concat(d, e))));
+  }
+
   const handleCreateVariant = () => {
-    const variantLabel = [
-      diamondType?.type,
-      diamondClarity?.grade,
-      metalType?.name
-    ].filter(Boolean).join('/');
-    const newVariant = {
-      diamondtypeId: diamondType?._id || '',
-      diamondclaritiesId: diamondClarity?._id || '',
-      metaltypeId: metalType?._id || '',
-      variant: variantLabel,
-      metalprice: '',
-      diamondprice: diamondPrice ? diamondPrice.toString() : '0',
-      varientprice: '',
-    };
-    if (!newVariant.diamondtypeId || !newVariant.diamondclaritiesId || !newVariant.metaltypeId) {
-      alert("Please select Diamond Type, Clarity, and Metal Type.");
+    // Defensive: ensure all are arrays
+    const dTypes = Array.isArray(diamondTypes) ? diamondTypes : (diamondTypes ? [diamondTypes] : []);
+    const dClarities = Array.isArray(diamondClarities) ? diamondClarities : (diamondClarities ? [diamondClarities] : []);
+    const mTypes = Array.isArray(metalTypes) ? metalTypes : (metalTypes ? [metalTypes] : []);
+    if (!dTypes.length || !dClarities.length || !mTypes.length) {
+      alert("Please select at least one Diamond Type, Clarity, and Metal Type.");
       return;
     }
-    setVariants([...variants, newVariant]);
+    // Generate all combinations
+    const combos = cartesian([dTypes, dClarities, mTypes]);
+    // Avoid duplicates (by type/clarity/metal IDs)
+    const existingKeys = new Set(
+      variants.map(v => `${v.diamondtypeId}_${v.diamondclaritiesId}_${v.metaltypeId}`)
+    );
+    const newVariants = combos.map(([type, clarity, metal]) => {
+      const variantLabel = [type?.type, clarity?.grade, metal?.name].filter(Boolean).join('/');
+      return {
+        diamondtypeId: type?._id || '',
+        diamondclaritiesId: clarity?._id || '',
+        metaltypeId: metal?._id || '',
+        variant: variantLabel,
+        metalprice: '',
+        diamondprice: diamondPriceMap[type?._id] ? diamondPriceMap[type._id].toString() : '0',
+        varientprice: '',
+      };
+    }).filter(v => v.diamondtypeId && v.diamondclaritiesId && v.metaltypeId && !existingKeys.has(`${v.diamondtypeId}_${v.diamondclaritiesId}_${v.metaltypeId}`));
+    if (newVariants.length === 0) {
+      alert("No new variants to add.");
+      return;
+    }
+    setVariants([...variants, ...newVariants]);
+  };
+
+  // Helper to calculate total price for a variant row
+  const getTotalPrice = (row) => {
+    if (row.manualTotalPrice !== undefined && row.manualTotalPrice !== null && row.manualTotalPrice !== '') {
+      return row.manualTotalPrice;
+    }
+    const lp = parseFloat(labourPrice) || 0;
+    const op = parseFloat(otherPrice) || 0;
+    const mp = parseFloat(row.metalprice) || 0;
+    const dp = parseFloat(row.diamondprice) || 0;
+    return (lp + op + mp + dp).toFixed(2);
   };
 
   return (
@@ -85,8 +129,8 @@ function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice, 
                   <input
                     type="text"
                     className="w-full text-center bg-transparent outline-none"
-                    value={row.varientprice}
-                    onChange={e => handleInputChange(idx, 'varientprice', e.target.value)}
+                    value={getTotalPrice(row)}
+                    onChange={e => handleInputChange(idx, 'manualTotalPrice', e.target.value)}
                   />
                 </td>
                 <td className="p-1 border border-gray-300 text-center">
@@ -102,7 +146,7 @@ function CreateVariants({ diamondType, diamondClarity, metalType, diamondPrice, 
               </tr>
             ))}
             {/* Empty rows for visual spacing */}
-            {Array(6 - variants.length).fill().map((_, i) => (
+            {Array(6 - variants.length > 0 ? 6 - variants.length : 0).fill().map((_, i) => (
               <tr key={`empty-${i}`}>
                 <td className="p-1 border border-gray-300 text-center">&nbsp;</td>
                 <td className="p-1 border border-gray-300 text-center"></td>

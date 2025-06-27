@@ -1,43 +1,65 @@
 import React, { useState, useRef, useEffect } from "react";
+import { FaChevronDown } from 'react-icons/fa';
+import { createPortal } from 'react-dom';
 import SelectIcon from "../../../assets/icon/select.png"; 
 
-const CustomDropdown = ({ value, onChange, options, optionLabel = 'label', optionValue = '_id', placeholder = "Select" }) => {
-    console.log(options);
+// Custom dropdown without Listbox
+const CustomDropdown = ({ value, onChange, options, optionLabel = 'label', optionValue = '_id', placeholder = 'Select' }) => {
     const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+    const buttonRef = useRef(null);
+    const dropdownRef = useRef(null);
+    const selectedOption = options.find(opt => opt[optionValue] === value) || null;
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (ref.current && !ref.current.contains(event.target)) {
+        if (!open) return;
+        function handleClickOutside(event) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target) &&
+                buttonRef.current &&
+                !buttonRef.current.contains(event.target)
+            ) {
                 setOpen(false);
             }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [open]);
 
     return (
-        <div ref={ref} className="relative inline-block w-full text-left">
+        <div className="relative w-full">
             <button
+                ref={buttonRef}
                 type="button"
-                className="w-full flex items-center justify-center px-3 bg-white rounded focus:outline-none focus:ring-0 focus:border-transparent"
-                onClick={() => setOpen((o) => !o)}
+                className="text-[#94A3B8] bg-[#F3F4F9] hover:bg-gray-200 focus:outline-none font-medium text-sm px-2 py-1 text-left flex items-center justify-between w-full min-h-[32px]"
+                onClick={() => setOpen(o => !o)}
             >
-                <span className="mr-1">{value || placeholder}</span>
-                <img src={SelectIcon} alt="Select" className="w-3 h-3" />
+                {selectedOption ? selectedOption[optionLabel] : placeholder}
+                <FaChevronDown className="ml-2 text-xs" />
             </button>
             {open && (
-                <div className="absolute z-500 mt-1 w-full bg-white border border-[#94A3B8] rounded shadow-lg">
-                    {options.map((option) => (
+                <div
+                    ref={dropdownRef}
+                    className="absolute left-0 mt-1 bg-white divide-y divide-gray-100 rounded-lg shadow w-full max-h-40 overflow-auto transition-all border border-gray-300 z-50"
+                    style={{ borderColor: '#d1d5db', borderWidth: '1.5px' }}
+                >
+                    {options.map(option => (
                         <div
                             key={option[optionValue]}
-                            className={`px-3 py-1.5 cursor-pointer hover:bg-gray-100 ${option[optionLabel] === value ? "font-semibold" : ""}`}
+                            className={`block w-full text-left px-4 py-2 cursor-pointer transition-colors ${value === option[optionValue] ? 'bg-gray-100 text-[#303F26] font-bold' : 'text-[#475569] hover:bg-gray-100'}`}
                             onClick={() => {
-                                onChange(option[optionLabel], option[optionValue]);
+                                if (value !== option[optionValue]) {
+                                    onChange(option[optionValue], option);
+                                }
                                 setOpen(false);
                             }}
                         >
-                            {option[optionLabel]}
+                            <div className="flex items-center justify-between">
+                                <span>{option[optionLabel]}</span>
+                                {value === option[optionValue] && (
+                                    <span className="text-green-500 ml-2">✓</span>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -45,7 +67,7 @@ const CustomDropdown = ({ value, onChange, options, optionLabel = 'label', optio
         </div>
     );
 };
-
+// diamond detail row functinality
 const DiamondDetailRow = ({
     shape = "",
     clarity = "",
@@ -76,10 +98,10 @@ const DiamondDetailRow = ({
                 <CustomDropdown value={size} onChange={onSizeChange} options={sizeOptions} optionLabel="size" optionValue="_id" />
             </td>
             <td className="w-24 min-h-[40px] border border-[#94A3B8] text-center">
-                <input type="text" value={rate} onChange={e => onRateChange(e.target.value)} className="w-full px-1 py-0.5 text-center" />
+                <input type="text" value={rate} onChange={e => onRateChange(e.target.value)} className="w-full px-1 py-0.5 text-center focus:outline-none" />
             </td>
             <td className="w-24 min-h-[40px] border border-[#94A3B8] ">
-                <input type="text" value={weight} onChange={e => onWeightChange(e.target.value)} className="w-full px-1 py-0.5 text-center" />
+                <input type="text" value={weight} onChange={e => onWeightChange(e.target.value)} className="w-full px-1 py-0.5 text-center focus:outline-none" />
             </td>
             <td className="w-32 min-h-[40px] border border-[#94A3B8] text-center">{totalPrice}</td>
             <td className="text-center w-12 min-h-[40px] border border-[#94A3B8]">
@@ -94,12 +116,18 @@ const DiamondDetailRow = ({
         </tr>
     );
 };
-
-const DiamondDetailsTable = ({ activeTab, onTabChange, rows, onDeleteRow, onRowChange, shapeOptions, clarityOptions, sizeOptions }) => {
-    // const minRows = 5;
-    // const blankRows = Math.max(0, minRows - rows.length);
-
-    // Calculate total of Total Price column (remove commas, parse as number, sum, format with commas)
+// main component
+const DiamondDetailsTable = ({
+    activeTab,
+    onTabChange,
+    rows,
+    onDeleteRow,
+    onRowChange,
+    shapeOptions,
+    clarityOptions,
+    sizeOptions,
+    diamondTypeOptions = []
+}) => {
     const totalPriceSum = rows.reduce((sum, row) => {
         const val = typeof row.totalPrice === 'string' ? Number(row.totalPrice.replace(/,/g, '')) : Number(row.totalPrice);
         return sum + (isNaN(val) ? 0 : val);
@@ -118,26 +146,23 @@ const DiamondDetailsTable = ({ activeTab, onTabChange, rows, onDeleteRow, onRowC
     const formattedWeightSum = weightSum ? weightSum + ' gm' : '';
 
     return (
-        <div className="border border-[#94A3B8] overflow-hidden">
+        <div className="border border-[#94A3B8]">
             {/* Tab Switcher */}
             <div className="text-center font-semibold py-1 border-b border-[#94A3B8] text-[#1E293B] bg-white">
                 Diamond Details
             </div>
             <div className="flex bg-white">
-                <button
-                    className={`flex-1 py-1 text-center font-semibold text-[#1E293B] focus:outline-none ${activeTab === 'Lab-Grown' ? 'border-b-3 border-[#475569]' : 'border-b-4 border-transparent'} transition-all`}
-                    onClick={() => onTabChange('Lab-Grown')}
-                >
-                    Lab-Grown
-                </button>
-                <button
-                    className={`flex-1 py-1 text-center font-semibold text-[#1E293B] focus:outline-none ${activeTab === 'Natural' ? 'border-b-3 border-[#475569]' : 'border-b-4 border-transparent'} transition-all`}
-                    onClick={() => onTabChange('Natural')}
-                >
-                    Natural
-                </button>
+                {diamondTypeOptions.map((diamondType) => (
+                    <button
+                        key={diamondType?._id}
+                        className={`flex-1 py-1 text-center font-semibold text-[#1E293B] focus:outline-none ${activeTab === diamondType.type ? 'border-b-4 border-[#475569]' : 'border-b-4 border-transparent'} transition-all`}
+                        onClick={() => onTabChange(diamondType?.type)}
+                    >
+                        {diamondType.type}
+                    </button>
+                ))}
             </div>
-            <div className="overflow-x-auto">
+            <div>
                 <table className="min-w-full bg-white border border-[#94A3B8]">
                     <thead>
                         <tr></tr>
@@ -157,16 +182,16 @@ const DiamondDetailsTable = ({ activeTab, onTabChange, rows, onDeleteRow, onRowC
                                 key={idx}
                                 {...row}
                                 onDelete={() => onDeleteRow(idx)}
-                                onShapeChange={(val, id) => {
-                                    onRowChange(idx, 'shape', val);
+                                onShapeChange={(id, option) => {
+                                    onRowChange(idx, 'shape', id);
                                     onRowChange(idx, 'diamondshapeId', id);
                                 }}
-                                onClarityChange={(val, id) => {
-                                    onRowChange(idx, 'clarity', val);
+                                onClarityChange={(id, option) => {
+                                    onRowChange(idx, 'clarity', id);
                                     onRowChange(idx, 'diamondclaritiesId', id);
                                 }}
-                                onSizeChange={(val, id) => {
-                                    onRowChange(idx, 'size', val);
+                                onSizeChange={(id, option) => {
+                                    onRowChange(idx, 'size', id);
                                     onRowChange(idx, 'sizeid', id);
                                 }}
                                 onRateChange={val => onRowChange(idx, 'rate', val)}
