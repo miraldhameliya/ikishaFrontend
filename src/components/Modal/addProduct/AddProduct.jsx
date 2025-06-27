@@ -123,6 +123,7 @@ const AddProduct = () => {
     const [uploading, setUploading] = useState(false);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [variants, setVariants] = useState([]);
+    const [isCategoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -373,23 +374,38 @@ const AddProduct = () => {
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div className="relative flex flex-col">
                                     <label className="mb-1 text-sm font-semibold text-[#475569]">Category</label>
-                                    <select
-                                        className="appearance-none px-4 py-2 rounded-md focus:outline-none text-[#94A3B8]"
-                                        value={formState.category}
-                                        onChange={e => setFormState(f => ({ ...f, category: e.target.value }))}
-                                        style={{ background: '#F3F4F9' }}
+                                    <button
+                                        type="button"
+                                        className="text-[#94A3B8] bg-[#F3F4F9] hover:bg-gray-200 focus:ring-2 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-left flex items-center justify-between w-full"
+                                        onClick={() => setCategoryDropdownOpen((open) => !open)}
                                     >
-                                        <option value="">Select Category</option>
-                                        {categoryOptions.map(cat => (
-                                            <option key={cat._id} value={cat._id}>{cat.categoryname}</option>
-                                        ))}
-                                    </select>
-                                    <img
-                                        src={select}
-                                        alt="Dropdown"
-                                        className="w-4 h-4 absolute right-3 top-9 pointer-events-none"
-                                        style={{ pointerEvents: 'none' }}
-                                    />
+                                        {formState.category
+                                            ? categoryOptions.find((cat) => cat._id === formState.category)?.categoryname || "Select Category"
+                                            : "Select Category"}
+                                        <svg className="w-2.5 h-2.5 ml-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+                                    {isCategoryDropdownOpen && (
+                                        <div className="absolute z-10 mt-18 bg-white divide-y divide-gray-100 rounded-lg shadow w-full">
+                                            <ul className="py-2 text-sm text-[#94A3B8]" aria-labelledby="dropdownDefaultButton">
+                                                {categoryOptions.map((cat) => (
+                                                    <li key={cat._id}>
+                                                        <button
+                                                            type="button"
+                                                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                                            onClick={() => {
+                                                                setFormState((f) => ({ ...f, category: cat._id }));
+                                                                setCategoryDropdownOpen(false);
+                                                            }}
+                                                        >
+                                                            {cat.categoryname}
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
                                 <InputField label="Laboure Price/gm" placeholder="Enter price/gm" value={formState.labourPricePerGm} onChange={e => setFormState(f => ({ ...f, labourPricePerGm: e.target.value }))} />
                                 <InputField label="Laboure Price" placeholder="Auto" value={formState.labourPrice} readOnly />
