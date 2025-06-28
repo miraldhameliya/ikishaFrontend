@@ -1,58 +1,132 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ringImg from '../assets/icon/Diamond.png';
 import right from '../assets/icon/right.png';
 import left from '../assets/icon/left.png';
 import dropdownIcon from '../assets/icon/dropdown.png';
 import earingImg from '../assets/icon/earing.png';
-
-const placeholderProduct = {
-  design_code: '#303F26',
-  name: 'Tri-Color Gold Multi-Band Diamond Engagement Ring',
-  price: '2,10,000',
-  metal_type: '925 Silver',
-  diamond_type: 'Lab-Grown',
-  diamond_clarity: 'VVS',
-  images: [ringImg, ringImg, ringImg, ringImg, ringImg],
-  related: [
-    { design_code: '#303F26', price: '3,50,000', img: ringImg },
-    { design_code: '#303F26', price: '3,50,000', img: ringImg },
-    { design_code: '#303F26', price: '3,50,000', img: ringImg },
-    { design_code: '#303F26', price: '3,50,000', img: ringImg },
-    { design_code: '#303F26', price: '3,50,000', img: ringImg },
-  ],
-};
-
-const metalTypes = [
-  { label: "SL", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-  { label: "10K", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-  { label: "10K", gradient: "bg-gradient-to-tr  from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
-  { label: "10K", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
-  { label: "14K", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-  { label: "14K", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
-  { label: "14K", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
-  { label: "18K", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-  { label: "18K", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
-  { label: "18K", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
-  { label: "PT", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-];
+import { viewProductDetail, fetchAllProduct } from '../redux/services/ProductService';
 
 const ProductDetails = () => {
   const location = useLocation();
-  // const navigate = useNavigate();
-  // In real use, get product from location.state or fetch by id from params
-  const product = location.state?.product || placeholderProduct;
-  const relatedProducts = product.related && product.related.length > 0 ? product.related : placeholderProduct.related;
+  const navigate = useNavigate();
+  const initialProduct = location.state?.product;
+
+  // Color mapping for metal types
+  const metalTypeColors = [
+    { label: "SL", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    { label: "10kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    { label: "10kt", gradient: "bg-gradient-to-tr  from-[#B3B2AF] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
+    { label: "10kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
+    { label: "14kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    { label: "14kt", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
+    { label: "14kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
+    { label: "18kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    { label: "18kt", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
+    { label: "18kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
+    { label: "PT", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+  ];
+
+  // Function to get color based on metal type
+  const getMetalTypeColor = (metalName) => {
+    const metalType = metalName.split('/')[0]; // Get first part (e.g., "10kt", "18kt")
+    
+    // Find matching color based on exact metal type name
+    const colorConfig = metalTypeColors.find(color => color.label === metalType);
+    
+    // Return the matching color or default to first color if not found
+    return colorConfig || metalTypeColors[0];
+  };
+
+  // Dynamic option arrays from API (from productDetails)
+  const [productDetails, setProductDetails] = useState(initialProduct);
+
+  // Default selected IDs from varient (or first in list as fallback)
+  const [selectedDiamondType, setSelectedDiamondType] = useState(initialProduct?.varient?.diamondtypeId?._id || initialProduct?.diamond_type?.[0]?._id || '');
+  const [selectedDiamondClarity, setSelectedDiamondClarity] = useState(initialProduct?.varient?.diamondclaritiesId?._id || initialProduct?.diamond_clarity?.[0]?._id || '');
+  const [selectedMetalType, setSelectedMetalType] = useState(initialProduct?.varient?.metaltypeId?._id || initialProduct?.metal_type?.[0]?._id || '');
+  const [loading, setLoading] = useState(false);
+
+  // Fetch updated product details from backend
+  const fetchUpdatedDetails = async (diamondtypeId, diamondclaritiesId, metaltypeId) => {
+    setLoading(true);
+    try {
+      const payload = {
+        productId: initialProduct._id,
+        diamondtypeId,
+        diamondclaritiesId,
+        metaltypeId
+      };
+      const response = await viewProductDetail(payload);
+      setProductDetails(response.Data);
+    } catch (error) {
+      // Optionally handle error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handlers for option changes
+  const handleMetalTypeChange = (id) => {
+    setSelectedMetalType(id);
+    fetchUpdatedDetails(selectedDiamondType, selectedDiamondClarity, id);
+  };
+
+  const handleDiamondTypeChange = (id) => {
+    setSelectedDiamondType(id);
+    fetchUpdatedDetails(id, selectedDiamondClarity, selectedMetalType);
+  };
+
+  const handleDiamondClarityChange = (id) => {
+    setSelectedDiamondClarity(id);
+    fetchUpdatedDetails(selectedDiamondType, id, selectedMetalType);
+  };
+
+  // Update selected IDs if productDetails changes (e.g. after API call)
+  useEffect(() => {
+    setSelectedDiamondType(productDetails?.varient?.diamondtypeId?._id || productDetails?.diamond_type?.[0]?._id || '');
+    setSelectedDiamondClarity(productDetails?.varient?.diamondclaritiesId?._id || productDetails?.diamond_clarity?.[0]?._id || '');
+    setSelectedMetalType(productDetails?.varient?.metaltypeId?._id || productDetails?.metal_type?.[0]?._id || '');
+  }, [productDetails]);
+
+  const [relatedProducts, setRelatedProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchRelated = async () => {
+      if (productDetails?.categoryid?._id) {
+        const data = await fetchAllProduct({
+          page: 1,
+          limit: 10,
+          search: "",
+          categoryId: productDetails.categoryid._id
+        });
+        setRelatedProducts(data.Data.docs.filter(p => p._id !== productDetails._id)); // Exclude current product
+      }
+    };
+    fetchRelated();
+  }, [productDetails]);
+
+  const diamondTypes = productDetails?.diamond_type || [];
+  const diamondClarities = productDetails?.diamond_clarity || [];
+  const metalTypes = productDetails?.metal_type || [];
 
   return (
     <div className="p-4 sm:p-6">
       <div className="mx-auto">
-        <div className="text-lg font-bold mb-2">Product <span className="text-sm font-normal text-gray-500">/ Product Details</span></div>
+        <div className="text-lg font-bold mb-2">
+          <span 
+            className="cursor-pointer hover:text-[#303F26] transition-colors"
+            onClick={() => navigate('/product')}
+          >
+            Product
+          </span>
+          <span className="text-sm font-normal text-gray-500"> / Product Details</span>
+        </div>
         <div className="flex flex-col lg:flex-row gap-4 md:gap-8 bg-white rounded-lg p-4 md:p-6">
           {/* Left: Main Image & Thumbnails */}
           <div className="flex-1 flex flex-col items-center">
             <div className="relative w-full max-w-xl h-64 sm:h-80 md:h-[26rem] flex items-center justify-center mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
-              <img src={product.images && product.images[0]?.url ? product.images[0].url : (product.images && typeof product.images[0] === 'string' ? product.images[0] : ringImg)} alt="Main" className="w-full h-full object-contain bg-white" />
+              <img src={productDetails?.images && productDetails.images[0]?.url ? productDetails.images[0].url : ringImg} alt="Main" className="w-full h-full object-contain bg-white" />
               <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white rounded-full shadow p-2 z-10 flex items-center justify-center">
                 <img src={right} alt='rightSide' className="w-5 h-5" />
               </button>
@@ -61,7 +135,7 @@ const ProductDetails = () => {
               </button>
             </div>
             <div className="flex w-full gap-4 mb-4 overflow-x-auto pb-2">
-              {product.images && product.images.length > 0 && product.images.map((img, idx) => (
+              {productDetails?.images && productDetails.images.length > 0 && productDetails.images.map((img, idx) => (
                 <img
                   key={idx}
                   src={img.url ? img.url : (typeof img === 'string' ? img : ringImg)}
@@ -73,36 +147,46 @@ const ProductDetails = () => {
           </div>
           {/* Right: Product Info */}
           <div className="flex-1 flex flex-col gap-4">
-            <div className=' text-lg sm:text-xl font-bold text-[#1E293B]'>{product?.categoryname}</div>
-            <div className="text-lg sm:text-xl font-bold">{product.name}</div>
-            <div className="text-[#1E293B] font-semibold">Design Code : <span className="text-[#64748B]">{product.design_code}</span></div>
-            <div className="text-[#1E293B] font-semibold">Price : <span className="text-[#64748B]">₹ {product.price}</span></div>
+            <div className='text-lg sm:text-xl font-bold text-[#1E293B]'>{productDetails?.categoryid?.categoryname || ''}</div>
+            <div className="text-lg sm:text-xl font-bold">{productDetails?.name}</div>
+            <div className="text-[#1E293B] font-semibold">Design Code : <span className="text-[#64748B]">{productDetails?.design_code}</span></div>
+            <div className="text-[#1E293B] font-semibold">
+              Price : <span className="text-[#64748B]">
+                ₹ {productDetails?.varient?.varientprice ?? productDetails?.totalamount ?? productDetails?.price}
+              </span>
+            </div>
             <div className="text-[#1E293B] font-semibold">Metal Type: <span className="text-[#64748B]">{
-              typeof product.metal_type === 'object'
-                ? product.metal_type?.name || product.metal_type?.type || ''
-                : product.metal_type
+              metalTypes.find(m => m._id === selectedMetalType)?.name || ''
             }</span></div>
             <div className="flex gap-2 my-2 flex-wrap">
-              {metalTypes.map((type, i) => (
-                <span
-                  key={i}
-                  className={`w-12 h-12 flex items-center justify-center rounded-full font-bold text-xs shadow ${type.gradient} ${type.border} ${type.text}`}
-                >
-                  {type.label}
-                </span>
-              ))}
+              {metalTypes.map((type) => {
+                const colorConfig = getMetalTypeColor(type.name);
+                return (
+                  <button
+                    key={type._id}
+                    className={`w-12 h-12 flex items-center justify-center rounded-full font-bold text-xs shadow ${colorConfig.gradient} ${colorConfig.text} ${selectedMetalType === type._id ? "ring-2 ring-green-500" : ""}`}
+                    onClick={() => handleMetalTypeChange(type._id)}
+                    disabled={loading}
+                  >
+                    {type.name.split('/')[0]}
+                  </button>
+                );
+              })}
             </div>
             <div className="flex flex-col gap-2 mt-2">
               <div>
                 <label className="block text-sm font-semibold text-[#1E293B] mb-1">Diamond Type</label>
                 <div className="relative w-full">
-                  <select className="w-full px-3 py-2 bg-white appearance-none focus:outline-none focus:ring-0 text-[#64748B]">
-                    <option value="" disabled selected >Select Diamond Type</option>
-                    <option>{
-                      typeof product.diamond_type === 'object'
-                        ? product.diamond_type?.type || product.diamond_type?.name || ''
-                        : product.diamond_type
-                    }</option>
+                  <select
+                    className="w-full px-3 py-2 bg-white appearance-none focus:outline-none focus:ring-0 text-[#64748B]"
+                    value={selectedDiamondType}
+                    onChange={e => handleDiamondTypeChange(e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="" disabled>Select Diamond Type</option>
+                    {diamondTypes.map(type => (
+                      <option key={type._id} value={type._id}>{type.type}</option>
+                    ))}
                   </select>
                   <img
                     src={dropdownIcon}
@@ -114,13 +198,16 @@ const ProductDetails = () => {
               <div>
                 <label className="block text-sm font-semibold text-[#1E293B] mb-1 ">Diamond Clarity</label>
                 <div className="relative w-full">
-                  <select className="w-full px-3 py-2 bg-white appearance-none focus:outline-none focus:ring-0 text-[#64748B]">
-                    <option value="" disabled selected>Select Diamond Clarity</option>
-                    <option>{
-                      typeof product.diamond_clarity === 'object'
-                        ? product.diamond_clarity?.grade || product.diamond_clarity?.name || ''
-                        : product.diamond_clarity
-                    }</option>
+                  <select
+                    className="w-full px-3 py-2 bg-white appearance-none focus:outline-none focus:ring-0 text-[#64748B]"
+                    value={selectedDiamondClarity}
+                    onChange={e => handleDiamondClarityChange(e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="" disabled>Select Diamond Clarity</option>
+                    {diamondClarities.map(clarity => (
+                      <option key={clarity._id} value={clarity._id}>{clarity.grade}</option>
+                    ))}
                   </select>
                   <img
                     src={dropdownIcon}
@@ -133,18 +220,32 @@ const ProductDetails = () => {
           </div>
         </div>
         {/* Related Products */}
-        <div className="mt-10">
-          <div className="text-xl font-bold mb-4 text-center text-[#1E293B]">Related Products</div>
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
-            {relatedProducts?.map((rel, idx) => (
-              <div key={idx} className="bg-[#E2E8F0] rounded-lg p-2 flex flex-col items-start border border-gray-200 shadow-sm">
-                <img src={earingImg} alt="related" className="w-full aspect-square object-cover rounded mb-2 bg-white" />
-                <div className="text-xs font-bold text-[#1E293B]">Design Code : <span className="font-medium text-gray-500">{rel.design_code}</span></div>
-                <div className="text-xs font-bold text-[#1E293B] mt-1">Price : <span className="font-medium text-gray-500">₹{rel.price}</span></div>
-              </div>
-            ))}
+        {relatedProducts.length > 0 && (
+          <div className="mt-10">
+            <div className="text-xl font-bold mb-4 text-center text-[#1E293B]">Related Products</div>
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
+              {relatedProducts.map((rel, idx) => (
+                <div
+                  key={rel._id}
+                  className="bg-[#E2E8F0] rounded-lg p-2 flex flex-col items-start border border-gray-200 shadow-sm cursor-pointer"
+                  onClick={() => window.location.reload() /* or navigate to details page with rel */}
+                >
+                  <img
+                    src={rel.images && rel.images[0]?.url}
+                    alt="related"
+                    className="w-full aspect-square object-cover rounded mb-2 bg-white"
+                  />
+                  <div className="text-xs font-bold text-[#1E293B]">Design Code : <span className="font-medium text-gray-500">{rel.design_code}</span></div>
+                  <div className="text-xs font-bold text-[#1E293B] mt-1">
+                    Price : <span className="font-medium text-gray-500">
+                      ₹{rel.varient?.varientprice ?? rel.totalamount ?? rel.price ?? 0}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

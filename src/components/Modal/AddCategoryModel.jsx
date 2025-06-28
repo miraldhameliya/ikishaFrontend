@@ -12,6 +12,11 @@ const AddCategoryModel = ({ onClose, categoryData, onSuccess }) => {
 
     useEffect(() => {
         setCategory(categoryData?.categoryname || '');
+        if (categoryData?.categoryimage) {
+            setPreview(categoryData.categoryimage);
+        } else {
+            setPreview(null);
+        }
     }, [categoryData]);
 
     const handleSave = async () => {

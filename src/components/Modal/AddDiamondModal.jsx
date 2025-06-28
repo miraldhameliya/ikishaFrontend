@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createDiamondShape } from '../../redux/services/diamondShape';
-
-
+import { createDiamondShape, updateDiamondShape } from '../../redux/services/diamondShape';
 
 const AddDiamondModal = ({ onClose, diamondData, onSuccess }) => {
   const [shape, setShape] = useState(diamondData?.shape || '');
@@ -16,19 +14,20 @@ const AddDiamondModal = ({ onClose, diamondData, onSuccess }) => {
     setLoading(true);
     setError(null);
     try {
-      const payload = { shape: shape, _id: diamondData?._id || '' };
+      let payload = { shape: shape };
+      // Only add diamondshapeId if editing
+      if (diamondData && diamondData._id) {
+        payload.diamondshapeId = diamondData._id;
+      }
       await createDiamondShape(payload);
       if (onSuccess) onSuccess();
       onClose();
-
     } catch (error) {
-      const apiMsg = error?.response?.data?.Message || error?.message || 'Failed to save metal type.';
+      const apiMsg = error?.response?.data?.Message || error?.message || 'Failed to save diamond shape.';
       setError(apiMsg);
     } finally {
       setLoading(false);
     }
-    // TODO: handle save logic
-
   };
 
   return (

@@ -13,15 +13,17 @@ const AddDiamondClarityModal = ({ onClose, diamondClarityData, onSuccess }) => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      const payload = { grade: clarity, _id: diamondClarityData?._id || '' };
+      let payload = { grade: clarity };
+      // Only add diamondclaritiesId if editing
+      if (diamondClarityData && diamondClarityData._id) {
+        payload.diamondclaritiesId = diamondClarityData._id;
+      }
       await createDiamondClarity(payload);
       if (typeof onSuccess === 'function') onSuccess();
       onClose();
-
     } catch (error) {
       const apiMsg = error?.response?.data?.Message || error?.message || 'Failed to save diamond clarity.';
       setError(apiMsg);
-
     } finally {
       setLoading(false);
     }

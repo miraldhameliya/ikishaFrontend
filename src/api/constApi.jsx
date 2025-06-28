@@ -10,7 +10,7 @@ export const RESET_PASSWORD = '/admin/profile/reset-password';
 // Dashboard endpoints
 export const GET_DASHBOARD_STATS = '/admin/dashboard/stats';
 export const DIMOND_SHAPE = `/admin/diamondshape/create`;
-export const DIAMOND_SHAPE_UPDATE = `/admin/diamondshape/update`;
+export const DIAMOND_SHAPE_UPDATE = `/admin/diamondshape/create`;
 export const DIAMOND_SHAPE_LIST = `/admin/diamondshape/`;
 export const DIAMOND_SHAPE_STATUS_UPDATE = '/admin/diamondshape/changestatus';
 export const ALLWOP_SHAPE = '/admin/diamondshape/?search='

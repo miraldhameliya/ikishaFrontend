@@ -60,7 +60,6 @@ const Diamond = () => {
     setLoading(true);
     try {
       const res = await fetchDiamondShape({ page: pageToLoad, limit: 10, search: '' });
-      console.log('fetchDiamondShape response:', res);
       const allDocs = res?.Data?.docs || [];
       if (pageToLoad === 1) {
         setData(allDocs);
@@ -69,7 +68,7 @@ const Diamond = () => {
       }
       // If docs length is less than limit, no more data
       setHasMore(allDocs.length === 10);
-    } catch {
+    } catch (error) {
       setHasMore(false);
     } finally {
       setLoading(false);
@@ -98,8 +97,9 @@ const Diamond = () => {
     return () => setRightButtonProps(null); // Clean up on unmount
   }, [setShowModal, setRightButtonProps]);
 
+  // Load initial data
   useEffect(() => {
-    setPage(1);
+    loadDiamonds(1);
   }, []);
 
   const handleEdit = (row) => {
@@ -131,9 +131,13 @@ const Diamond = () => {
       {showModal && <AddDiamondModal
         onClose={() => { setShowModal(false); setSelectedRow(null); }}
         diamondData={selectedRow}
-        onSuccess={() => {
+        onSuccess={async () => {
+          setShowModal(false);
+          setSelectedRow(null);
+          setData([]); // Clear current data
           setPage(1);
-          loadDiamonds(1);
+          await loadDiamonds(1); // Fetch latest data
+          // Optionally, show a success message here
         }}
       />}
     </>

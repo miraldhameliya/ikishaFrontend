@@ -45,7 +45,7 @@ function AppContent() {
         <Route path='/diamond-shape' element={<DiamondShape/>}/>
         <Route path='/product' element={<Product />} />
         <Route path='/add-product' element={<AddProduct />} />
-        <Route path='/edit-product' element={<AddProduct />} />
+
         <Route path='/diamond-clarity' element={<DiamondClarity />} />
         <Route path='/metal' element={<Metal />} />
         <Route path='/size' element={<Size />} />

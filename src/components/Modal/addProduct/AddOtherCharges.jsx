@@ -20,7 +20,11 @@ const AddOtherCharges = ({ rows, setRows }) => {
   }, 0);
 
   const totalAmount = rows.reduce((sum, row) => {
-    const num = parseFloat((row.amount || '').replace(/,/g, ''));
+    let amount = row.amount;
+    if (typeof amount === 'string') {
+      amount = amount.replace(/,/g, '');
+    }
+    const num = parseFloat(amount || 0);
     return sum + (isNaN(num) ? 0 : num);
   }, 0);
 

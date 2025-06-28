@@ -15,7 +15,11 @@ const AddSizeModal = ({ onClose, onSuccess, sizeData }) => {
     setLoading(true);
     setError(null);
     try {
-      const payload = { size: shape, _id: sizeData?._id || '' };
+      let payload = { size: shape };
+      // Only add sizeid if editing
+      if (sizeData && sizeData._id) {
+        payload.sizeid = sizeData._id;
+      }
       await createSize(payload);
       if (onSuccess) onSuccess();
       onClose();

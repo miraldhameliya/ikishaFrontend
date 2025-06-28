@@ -21,7 +21,10 @@ function Category() {
   useEffect(() => {
     setRightButtonProps({
       text: 'Add Category',
-      onClick: () => setShowModal(true)
+      onClick: () => {
+        setSelectedImage(null); // Ensure add opens blank
+        setShowModal(true);
+      }
     });
     return () => setRightButtonProps(null); // Clean up on unmount
   }, [setShowModal, setRightButtonProps]);

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 
 function Table({ columns, data, rowKey, loading, onBodyScroll }) {
+  console.log('Table received data:', data);
   const bodyRef = useRef();
 
   useEffect(() => {

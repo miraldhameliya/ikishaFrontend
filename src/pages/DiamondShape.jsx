@@ -53,14 +53,14 @@ function DiamondShape() {
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
     const [statusLoadingId, setStatusLoadingId] = useState(null);
-    // const [statusError, setStatusError] = useState('');
+    const [statusError, setStatusError] = useState('');
 
     const loadDiamondsShape = async (pageToLoad = 1) => {
         setLoading(true);
         try {
             const res = await fetchDiamondType({ page: pageToLoad, limit: 10, search: '' });
             console.log('API Response:', res);
-            const allDocs = res?.Data?.docs || res?.data?.docs || res?.docs || [];
+            const allDocs = res?.Data?.docs || [];
             if (pageToLoad === 1) {
                 setData(allDocs);
             } else {
@@ -84,6 +84,7 @@ function DiamondShape() {
     useEffect(() => {
         loadDiamondsShape(page);
     }, [page]);
+
     useEffect(() => {
         setRightButtonProps({
             text: 'Add Diamond Type',
@@ -95,18 +96,20 @@ function DiamondShape() {
         return () => setRightButtonProps(null); // Clean up on unmount
     }, [setShowModal, setRightButtonProps]);
 
+    // Load initial data
     useEffect(() => {
-        setPage(1);
+        loadDiamondsShape(1);
     }, []);
 
     const handleEdit = (row) => {
+        console.log('Editing row:', row);
         setSelectedRow(row);
         setShowModal(true);
     };
 
     const handleToggleStatus = async (row) => {
         setStatusLoadingId(row._id);
-        // setStatusError('');
+        setStatusError('');
         try {
             await changeDiamondTypeStatus({ diamondtypeId: row._id, status: !row.status });
             await loadDiamondsShape(1);
@@ -129,9 +132,25 @@ function DiamondShape() {
             {showModal && <AddDiamondTypeModel
                 onClose={() => { setShowModal(false); setSelectedRow(null); }}
                 diamondData={selectedRow}
-                onSuccess={() => {
-                    setPage(1);
-                    loadDiamondsShape(1);
+                onSuccess={async (updatedDiamond) => {
+                    setShowModal(false);
+                    setSelectedRow(null);
+                    if (updatedDiamond && updatedDiamond._id) {
+                        setData(prevData => {
+                            const newData = prevData.map(item =>
+                                item._id === updatedDiamond._id
+                                    ? { ...item, ...updatedDiamond }
+                                    : item
+                            );
+                            console.log('Updated table data:', newData);
+                            return newData;
+                        });
+                    } else {
+                        setData([]);
+                        setPage(1);
+                        setHasMore(true);
+                        await loadDiamondsShape(1);
+                    }
                 }}
             />}
         </>

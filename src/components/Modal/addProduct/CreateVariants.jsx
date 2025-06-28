@@ -1,6 +1,7 @@
 import React from 'react';
 
 function CreateVariants({ diamondTypes = [], diamondClarities = [], metalTypes = [], diamondPriceMap = {}, variants, setVariants, labourPrice = 0, otherPrice = 0 }) {
+  variants = Array.isArray(variants) ? variants : [];
   const handleDelete = idx => {
     setVariants(variants.filter((_, i) => i !== idx));
   };

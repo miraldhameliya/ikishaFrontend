@@ -1,26 +1,36 @@
 import { useEffect, useState } from "react";
-import { createDiamondType } from "../../redux/services/diamondTypeService";
+import { createDiamondType, updateDiamondType } from "../../redux/services/diamondTypeService";
 
 const AddDiamondTypeModel = ({ onClose, diamondData, onSuccess }) => {
-    const [diamond, setDiamond] = useState(diamondData?.name || '');
+    const [diamond, setDiamond] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        setDiamond(diamondData?.name || '');
+        console.log('Modal useEffect - diamondData:', diamondData);
+        // Reset form when diamondData changes
+        if (diamondData) {
+            setDiamond(diamondData.type || '');
+        } else {
+            setDiamond('');
+        }
+        setError(null);
     }, [diamondData]);
 
     const handleSave = async () => {
         setLoading(true);
         setError(null);
         try {
-            const payload = { name: diamond, metaltypeId: diamondData?._id || '' };
+            let payload = { type: diamond };
+            // Only add diamondtypeid if editing
+            if (diamondData && diamondData._id) {
+                payload.diamondtypeid = diamondData._id;
+            }
             await createDiamondType(payload);
-            if (typeof onSuccess === 'function') onSuccess();
+            if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
-            // Show API error in modal (e.g. duplicate)
-            const apiMsg = error?.response?.data?.Message || error?.message || 'Failed to save metal type.';
+            const apiMsg = error?.response?.data?.Message || error?.message || 'Failed to save diamond type.';
             setError(apiMsg);
         } finally {
             setLoading(false);
@@ -30,7 +40,7 @@ const AddDiamondTypeModel = ({ onClose, diamondData, onSuccess }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-20 backdrop-blur-sm">
             <div className="bg-[#E6EAEE] rounded-2xl p-8 min-w-[320px] sm:min-w-[400px] md:min-w-[500px] shadow-2xl flex flex-col gap-6">
-                <div className="text-[20px] font-semibold mb-2 text-[#212121]">{diamondData ? 'Edit Metal Type' : 'Add Metal Type'}</div>
+                <div className="text-[20px] font-semibold mb-2 text-[#212121]">{diamondData ? 'Edit Diamond Type' : 'Add Diamond Type'}</div>
                 <div>
                     <div className="text-[15px] font-medium mb-1 text-[#475569]">Diamond Type</div>
                     <input
@@ -54,7 +64,7 @@ const AddDiamondTypeModel = ({ onClose, diamondData, onSuccess }) => {
                         onClick={handleSave}
                         disabled={loading || !diamond}
                     >
-                        {loading ? (metalData ? 'Saving...' : 'Saving...') : (diamondData ? 'Update' : 'Save')}
+                        {loading ? (diamondData ? 'Saving...' : 'Saving...') : (diamondData ? 'Update' : 'Save')}
                     </button>
                 </div>
                 {error && <div className="text-red-600 text-center mt-2">{error}</div>}

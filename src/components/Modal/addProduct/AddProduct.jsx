@@ -44,6 +44,7 @@ const AddProduct = () => {
         labourPrice: editingProduct.labourPrice || '',
         otherPrice: editingProduct.otherPrice || '',
         totalAmount: editingProduct.totalAmount || '',
+        category: editingProduct.categoryid || '',
     } : {
         designNo: '',
         labelNo: '',
@@ -55,6 +56,7 @@ const AddProduct = () => {
         labourPrice: '',
         otherPrice: '',
         totalAmount: '',
+        category: '',
     });
 
     // Draft (editable) state
@@ -69,18 +71,63 @@ const AddProduct = () => {
     const [clarityOptions, setClarityOptions] = useState([]);
     const [sizeOptions, setSizeOptions] = useState([]);
     const [diamondTypeOptions, setDiamondTypeOptions] = useState([]);
-    // console.log("diamondTypeOption====", diamondTypeOptions);
     const [metalTypeOptions, setMetalTypeOptions] = useState([]);
     const [isDiamondTypeOpen, setDiamondTypeOpen] = useState(false);
-    // console.log("isDiamondTypeOpen", isDiamondTypeOpen);
     const [isClarityOpen, setClarityOpen] = useState(false);
     const [isMetalTypeOpen, setMetalTypeOpen] = useState(false);
-    const [images, setImages] = useState([]);
+    const [images, setImages] = useState(editingProduct?.images?.map(img => img.url) || []);
     const [uploading, setUploading] = useState(false);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [variants, setVariants] = useState([]);
     const [isCategoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
     const [errors, setErrors] = useState({});
+
+    // Auto-fill dropdowns and arrays from editingProduct
+    useEffect(() => {
+        if (editingProduct) {
+            // Diamond Types
+            if (editingProduct.diamond_type) {
+                setDiamondTypes(editingProduct.diamond_type);
+            }
+            // Diamond Clarities
+            if (editingProduct.diamond_clarity) {
+                setDiamondClarities(editingProduct.diamond_clarity);
+            }
+            // Metal Types
+            if (editingProduct.metal_type) {
+                setMetalTypes(editingProduct.metal_type);
+            }
+            // Images
+            if (editingProduct.images) {
+                setImages(editingProduct.images.map(img => img.url));
+            }
+            // Variants
+            if (editingProduct.varient) {
+                setVariants(editingProduct.varient);
+            }
+            // Diamond Rows (diamond_details)
+            if (editingProduct.diamond_details) {
+                // Group diamond_details by diamondtypeId for tabs
+                const grouped = {};
+                editingProduct.diamond_details.forEach(row => {
+                    const typeKey = row.diamondtypeId?._id || row.diamondtypeId || '';
+                    if (!grouped[typeKey]) grouped[typeKey] = [];
+                    grouped[typeKey].push({
+                        ...row,
+                        diamondtypeId: row.diamondtypeId?._id || row.diamondtypeId || '',
+                        diamondshapeId: row.diamondshapeId?._id || row.diamondshapeId || '',
+                        diamondclaritiesId: row.diamondclaritiesId?._id || row.diamondclaritiesId || '',
+                        sizeid: row.sizeid?._id || row.sizeid || '',
+                    });
+                });
+                setDiamondRows(grouped);
+            }
+            // Other Charges
+            if (editingProduct.other_charges) {
+                setDraftOtherChargeRows(editingProduct.other_charges);
+            }
+        }
+    }, [editingProduct]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -213,7 +260,11 @@ const AddProduct = () => {
         const labourPrice = nwt * labourPricePerGm;
         // Calculate otherPrice from draftOtherChargeRows
         const otherPrice = draftOtherChargeRows.reduce((sum, row) => {
-            const num = parseFloat((row.amount || '').replace(/,/g, ''));
+            let amount = row.amount;
+            if (typeof amount === 'string') {
+                amount = amount.replace(/,/g, '');
+            }
+            const num = parseFloat(amount || 0);
             return sum + (isNaN(num) ? 0 : num);
         }, 0);
         setFormState(prev => ({
