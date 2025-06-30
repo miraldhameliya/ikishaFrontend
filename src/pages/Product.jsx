@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 import editIcon from '../assets/icon/edit.png';
 import productImage from '../assets/icon/nosepin.png';
-import { fetchAllProduct, viewProductDetail } from '../redux/services/ProductService';
+import { fetchAllProduct, viewProductDetail, viewProduct } from '../redux/services/ProductService';
 import remove from '../assets/icon/Remove.png'
 
 const Product = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { setRightButtonProps } = useHeaderRightButton();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,6 +18,9 @@ const Product = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
+
+    // Get categoryId from navigation state (if any)
+    const categoryId = location.state?.categoryId || "";
 
     useEffect(() => {
         setRightButtonProps({
@@ -34,12 +38,11 @@ const Product = () => {
                 setLoadingMore(true);
             }
             
-            const data = await fetchAllProduct({ page, limit: 18, search: "", categoryId: "" });
+            const data = await fetchAllProduct({ page, limit: 18, search: "", categoryId });
             console.log('Fetched products:', data);
             
             if (data && data.Data && data.Data.docs) {
                 const newProducts = data.Data.docs;
-                const totalDocs = data.Data.totalDocs || 0;
                 const totalPages = data.Data.totalPages || 0;
                 
                 if (append) {
@@ -59,7 +62,7 @@ const Product = () => {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, []);
+    }, [categoryId]);
 
     useEffect(() => {
         fetchProducts(1, false);
@@ -86,8 +89,26 @@ const Product = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [handleScroll]);
 
-    const handleEdit = (product) => {
-        navigate('/add-product', { state: { product } });
+    const handleEdit = async (product) => {
+        try {
+            setDetailsLoading(true);
+            setDetailsError(null);
+            
+            // Fetch complete product details using the API
+            const response = await viewProduct(product._id);
+            
+            if (response && response.Data) {
+                // Navigate to add-product page with the complete product data
+                navigate('/add-product', { state: { product: response.Data } });
+            } else {
+                setDetailsError('Failed to fetch product details for editing');
+            }
+        } catch (err) {
+            setDetailsError('Failed to fetch product details for editing');
+            console.error('Error fetching product for edit:', err);
+        } finally {
+            setDetailsLoading(false);
+        }
     };
 
     const handleDelete = (product) => {
@@ -198,7 +219,7 @@ const Product = () => {
                         </div>
                         <div className="px-3 py-2 bg-white text-left">
                             <p className="font-bold text-[#334155]">Design Code : <span className="font-medium  text-[#64748B]">{product.design_code}</span></p>
-                            <p className="font-bold text-[#334155] mt-1">Price : <span className="font-medium text-[#64748B]">₹{product.totalamount}</span></p>
+                            <p className="font-bold text-[#334155] mt-1">Price : <span className="font-medium text-[#64748B]">₹ {product?.varient?.varientprice ?? product?.totalamount ?? product?.price}</span></p>
                         </div>
                     </div>
                 ))}

@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from 'react-icons/fa';
-import { createPortal } from 'react-dom';
-import SelectIcon from "../../../assets/icon/select.png"; 
 
 // Custom dropdown without Listbox
 const CustomDropdown = ({ value, onChange, options, optionLabel = 'label', optionValue = '_id', placeholder = 'Select' }) => {
@@ -129,7 +127,12 @@ const DiamondDetailsTable = ({
     diamondTypeOptions = []
 }) => {
     const totalPriceSum = rows.reduce((sum, row) => {
-        const val = typeof row.totalPrice === 'string' ? Number(row.totalPrice.replace(/,/g, '')) : Number(row.totalPrice);
+        let totalPrice = row.totalPrice;
+        // Handle both string and number values
+        if (typeof totalPrice === 'string') {
+            totalPrice = totalPrice.replace(/,/g, '');
+        }
+        const val = Number(totalPrice || 0);
         return sum + (isNaN(val) ? 0 : val);
     }, 0);
     const formattedTotalPriceSum = totalPriceSum.toLocaleString();
@@ -182,15 +185,15 @@ const DiamondDetailsTable = ({
                                 key={idx}
                                 {...row}
                                 onDelete={() => onDeleteRow(idx)}
-                                onShapeChange={(id, option) => {
+                                onShapeChange={(id) => {
                                     onRowChange(idx, 'shape', id);
                                     onRowChange(idx, 'diamondshapeId', id);
                                 }}
-                                onClarityChange={(id, option) => {
+                                onClarityChange={(id) => {
                                     onRowChange(idx, 'clarity', id);
                                     onRowChange(idx, 'diamondclaritiesId', id);
                                 }}
-                                onSizeChange={(id, option) => {
+                                onSizeChange={(id) => {
                                     onRowChange(idx, 'size', id);
                                     onRowChange(idx, 'sizeid', id);
                                 }}

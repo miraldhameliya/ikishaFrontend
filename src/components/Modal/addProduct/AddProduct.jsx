@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import DiamondDetailsTable from './DiamondDetailTable';
 import AddOtherCharges from './AddOtherCharges';
 import { FaChevronDown } from 'react-icons/fa';
@@ -35,16 +35,16 @@ const AddProduct = () => {
     // Example: main form state (add all fields you need)
     const [formState, setFormState] = useState(() => editingProduct ? {
         designNo: editingProduct.design_code || '',
-        labelNo: editingProduct.label_no || '',
-        gwt: editingProduct.gwt || '',
-        dwt: editingProduct.dwt || '',
-        owt: editingProduct.owt || '',
-        nwt: editingProduct.nwt || '',
-        labourPricePerGm: editingProduct.labourPricePerGm || '',
-        labourPrice: editingProduct.labourPrice || '',
-        otherPrice: editingProduct.otherPrice || '',
-        totalAmount: editingProduct.totalAmount || '',
-        category: editingProduct.categoryid || '',
+        labelNo: editingProduct.label_code || '',
+        gwt: editingProduct.g_wt || '',
+        dwt: editingProduct.d_wt || '',
+        owt: editingProduct.o_wt || '',
+        nwt: editingProduct.n_wt || '',
+        labourPricePerGm: editingProduct.laboureprice_gm || '',
+        labourPrice: editingProduct.laboureprice || '',
+        otherPrice: editingProduct.otherprice || '',
+        totalAmount: editingProduct.totalamount || '',
+        category: editingProduct.categoryid?._id || editingProduct.categoryid || '',
     } : {
         designNo: '',
         labelNo: '',
@@ -72,19 +72,30 @@ const AddProduct = () => {
     const [sizeOptions, setSizeOptions] = useState([]);
     const [diamondTypeOptions, setDiamondTypeOptions] = useState([]);
     const [metalTypeOptions, setMetalTypeOptions] = useState([]);
-    const [isDiamondTypeOpen, setDiamondTypeOpen] = useState(false);
-    const [isClarityOpen, setClarityOpen] = useState(false);
-    const [isMetalTypeOpen, setMetalTypeOpen] = useState(false);
     const [images, setImages] = useState(editingProduct?.images?.map(img => img.url) || []);
     const [uploading, setUploading] = useState(false);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [variants, setVariants] = useState([]);
-    const [isCategoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
     const [errors, setErrors] = useState({});
 
     // Auto-fill dropdowns and arrays from editingProduct
     useEffect(() => {
         if (editingProduct) {
+            // Update form state with API data
+            setFormState({
+                designNo: editingProduct.design_code || '',
+                labelNo: editingProduct.label_code || '',
+                gwt: editingProduct.g_wt || '',
+                dwt: editingProduct.d_wt || '',
+                owt: editingProduct.o_wt || '',
+                nwt: editingProduct.n_wt || '',
+                labourPricePerGm: editingProduct.laboureprice_gm || '',
+                labourPrice: editingProduct.laboureprice || '',
+                otherPrice: editingProduct.otherprice || '',
+                totalAmount: editingProduct.totalamount || '',
+                category: editingProduct.categoryid?._id || editingProduct.categoryid || '',
+            });
+
             // Diamond Types
             if (editingProduct.diamond_type) {
                 setDiamondTypes(editingProduct.diamond_type);
@@ -110,17 +121,31 @@ const AddProduct = () => {
                 // Group diamond_details by diamondtypeId for tabs
                 const grouped = {};
                 editingProduct.diamond_details.forEach(row => {
-                    const typeKey = row.diamondtypeId?._id || row.diamondtypeId || '';
-                    if (!grouped[typeKey]) grouped[typeKey] = [];
-                    grouped[typeKey].push({
+                    // Use the diamond type name (like "Natural", "Lab-Grown") as the key
+                    const typeName = row.diamondtypeId?.type || '';
+                    if (!grouped[typeName]) grouped[typeName] = [];
+                    grouped[typeName].push({
                         ...row,
                         diamondtypeId: row.diamondtypeId?._id || row.diamondtypeId || '',
                         diamondshapeId: row.diamondshapeId?._id || row.diamondshapeId || '',
                         diamondclaritiesId: row.diamondclaritiesId?._id || row.diamondclaritiesId || '',
                         sizeid: row.sizeid?._id || row.sizeid || '',
+                        // Set the display values for the table
+                        shape: row.diamondshapeId?._id || row.diamondshapeId || '',
+                        clarity: row.diamondclaritiesId?._id || row.diamondclaritiesId || '',
+                        size: row.sizeid?._id || row.sizeid || '',
+                        rate: row.rate || '',
+                        weight: row.weight || '',
+                        totalPrice: row.price || '',
                     });
                 });
                 setDiamondRows(grouped);
+                
+                // Set active tab to the first diamond type that has data
+                const firstTypeWithData = Object.keys(grouped)[0];
+                if (firstTypeWithData && !activeTab) {
+                    setActiveTab(firstTypeWithData);
+                }
             }
             // Other Charges
             if (editingProduct.other_charges) {
@@ -156,8 +181,8 @@ const AddProduct = () => {
                 // Fetch Metal Types for filter
                 const metalData = await allWopMetal({ search: '' });
                 if (metalData && metalData.Data) setMetalTypeOptions(metalData.Data);
-            } catch (err) {
-                // console.error("Failed to fetch diamond details", err);
+            } catch (error) {
+                console.error("Failed to fetch diamond details", error);
             }
         };
         fetchData();
@@ -169,6 +194,50 @@ const AddProduct = () => {
         }
         // eslint-disable-next-line
     }, [diamondTypeOptions, activeTab]);
+
+    // Set active tab when diamond rows are loaded for editing
+    useEffect(() => {
+        if (editingProduct && Object.keys(diamondRows).length > 0 && !activeTab) {
+            const firstTypeWithData = Object.keys(diamondRows)[0];
+            if (firstTypeWithData) {
+                setActiveTab(firstTypeWithData);
+            }
+        }
+    }, [diamondRows, editingProduct, activeTab]);
+
+    // Initialize diamond rows when diamond type options are loaded and we have editing product
+    useEffect(() => {
+        if (editingProduct && diamondTypeOptions.length > 0 && Object.keys(diamondRows).length === 0) {
+            // Re-process the diamond details with the loaded options
+            if (editingProduct.diamond_details) {
+                const grouped = {};
+                editingProduct.diamond_details.forEach(row => {
+                    const typeName = row.diamondtypeId?.type || '';
+                    if (!grouped[typeName]) grouped[typeName] = [];
+                    grouped[typeName].push({
+                        ...row,
+                        diamondtypeId: row.diamondtypeId?._id || row.diamondtypeId || '',
+                        diamondshapeId: row.diamondshapeId?._id || row.diamondshapeId || '',
+                        diamondclaritiesId: row.diamondclaritiesId?._id || row.diamondclaritiesId || '',
+                        sizeid: row.sizeid?._id || row.sizeid || '',
+                        shape: row.diamondshapeId?._id || row.diamondshapeId || '',
+                        clarity: row.diamondclaritiesId?._id || row.diamondclaritiesId || '',
+                        size: row.sizeid?._id || row.sizeid || '',
+                        rate: row.rate || '',
+                        weight: row.weight || '',
+                        totalPrice: row.price || '',
+                    });
+                });
+                setDiamondRows(grouped);
+                
+                // Set active tab
+                const firstTypeWithData = Object.keys(grouped)[0];
+                if (firstTypeWithData) {
+                    setActiveTab(firstTypeWithData);
+                }
+            }
+        }
+    }, [editingProduct, diamondTypeOptions, diamondRows]);
 
     useEffect(() => {
         setDiamondRows(prev => {
@@ -187,13 +256,17 @@ const AddProduct = () => {
 
     const calculateTotalPrice = (rows) => {
         return rows.reduce((sum, row) => {
-            const num = parseFloat((row.totalPrice || '').replace(/,/g, ''));
+            let totalPrice = row.totalPrice;
+            // Handle both string and number values
+            if (typeof totalPrice === 'string') {
+                totalPrice = totalPrice.replace(/,/g, '');
+            }
+            const num = parseFloat(totalPrice || 0);
             return sum + (isNaN(num) ? 0 : num);
         }, 0);
     };
 
     const activeDiamondRows = diamondRows[activeTab] || [];
-    const totalDiamondPrice = calculateTotalPrice(activeDiamondRows);
 
     // Calculate total price for each diamond type tab
     const diamondPriceMap = {};
@@ -306,37 +379,69 @@ const AddProduct = () => {
     };
 
     const handleSave = async () => {
+        console.log("handleSave called");
+        console.log("editingProduct:", editingProduct);
+        
         const validationErrors = validateForm();
+        console.log("Validation errors found:", validationErrors);
+        
         if (Object.keys(validationErrors).length > 0) {
+            console.log("Validation errors:", validationErrors);
             setErrors(validationErrors);
             return;
         }
         setErrors({});
+        
         try {
+            console.log("Starting to build payload...");
             const diamond_details = Object.entries(diamondRows)
-                .flatMap(([tab, rows]) =>
-                    rows.map(row => ({
-                        diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : row.diamondtypeId || '',
-                        diamondshapeId: row.diamondshapeId || '',
-                        diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : row.diamondclaritiesId || '',
-                        sizeid: row.sizeid || '',
-                        rate: row.rate,
-                        weight: row.weight,
-                        price: row.totalPrice?.toString().replace(/,/g, '') || '0',
-                    }))
+                .flatMap(([, rows]) =>
+                    rows.map(row => {
+                        let totalPrice = row.totalPrice;
+                        // Handle both string and number values
+                        if (typeof totalPrice === 'string') {
+                            totalPrice = totalPrice.replace(/,/g, '');
+                        }
+                        return {
+                            diamondtypeId: typeof row.diamondtypeId === "object" ? row.diamondtypeId._id : row.diamondtypeId || '',
+                            diamondshapeId: row.diamondshapeId || '',
+                            diamondclaritiesId: typeof row.clarity === "object" ? row.clarity._id : row.diamondclaritiesId || '',
+                            sizeid: row.sizeid || '',
+                            rate: row.rate,
+                            weight: row.weight,
+                            price: totalPrice?.toString() || '0',
+                        };
+                    })
                 );
+            console.log("diamond_details built:", diamond_details);
+            
             // Build other_charges array
-            const other_charges = draftOtherChargeRows.map(row => ({
-                product: row.product,
-                weight: row.weight,
-                amount: parseFloat((row.amount || '').replace(/,/g, '')) || 0,
-            }));
+            const other_charges = draftOtherChargeRows.map(row => {
+                let amount = row.amount;
+                // Handle both string and number values
+                if (typeof amount === 'string') {
+                    amount = amount.replace(/,/g, '');
+                }
+                return {
+                    product: row.product,
+                    weight: row.weight,
+                    amount: parseFloat(amount || 0) || 0,
+                };
+            });
+            console.log("other_charges built:", other_charges);
+            
             // Build images array (only selected images)
             const imagesArr = images.map(url => ({ url }));
+            console.log("images built:", imagesArr);
+            
             // Collect diamond_type, diamond_clarity, metal_type as arrays (single selection)
             const diamondTypeIds = diamondTypes.map(type => typeof type === "object" ? type._id : type);
             const diamondClarityIds = diamondClarities.map(clarity => typeof clarity === "object" ? clarity._id : clarity);
             const metalTypeIds = metalTypes.map(type => typeof type === "object" ? type._id : type);
+            console.log("diamondTypeIds:", diamondTypeIds);
+            console.log("diamondClarityIds:", diamondClarityIds);
+            console.log("metalTypeIds:", metalTypeIds);
+            
             // Calculate varientprice for each variant
             const labourPriceNum = parseFloat(formState.labourPrice) || 0;
             const otherPriceNum = parseFloat(formState.otherPrice) || 0;
@@ -348,6 +453,8 @@ const AddProduct = () => {
                     varientprice: (labourPriceNum + otherPriceNum + metalPriceNum + diamondPriceNum).toFixed(2)
                 };
             });
+            console.log("variantsWithPrice built:", variantsWithPrice);
+            
             // Map formState to backend keys
             const payload = {
                 productId: '', // If editing, set the product ID
@@ -370,15 +477,29 @@ const AddProduct = () => {
                 metal_type: metalTypeIds,
                 varient: variantsWithPrice,
             };
+            
+            console.log("Full payload built:", payload);
+            
             if (editingProduct) {
                 payload.productId = editingProduct._id;
-                await updateProduct(payload);
+                console.log("EDITING MODE - Product ID:", editingProduct._id);
+                console.log("EDITING MODE - Full payload:", payload);
+                console.log("About to call updateProduct...");
+                const result = await addProduct(payload);
+                console.log("updateProduct result:", result);
             } else {
-                await addProduct(payload);
+                console.log("ADDING MODE - No product ID");
+                console.log("ADDING MODE - Full payload:", payload);
+                console.log("About to call addProduct...");
+                const result = await addProduct(payload);
+                console.log("addProduct result:", result);
             }
+            
+            console.log("API call successful, navigating to /product");
             navigate('/product');
         } catch (error) {
-            // console.error("Failed to save product", error);
+            console.error("Failed to save product", error);
+            console.error("Error details:", error.response?.data || error.message);
         }
     };
     const handleCancel = () => {
@@ -406,7 +527,16 @@ const AddProduct = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Left Column */}
                     <div className="w-full lg:w-1/2">
-                        <h2 className="text-xl font-bold mb-8 mt-5 text-gray-800">Product Details</h2>
+                        <div className="flex items-center justify-between mb-8 mt-5">
+                            <h2 className="text-xl font-bold text-gray-800">
+                                {editingProduct ? 'Edit Product' : 'Add Product'}
+                            </h2>
+                            {/* {editingProduct && (
+                                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    Editing: {editingProduct.design_code}
+                                </div>
+                            )} */}
+                        </div>
                         <div className="mb-8 space-y-6 text-[#334155]">
                             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"> */}
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -493,7 +623,9 @@ const AddProduct = () => {
                         <div className="mb-8 mt-8">
                             <div className="flex justify-end gap-4">
                                 <button className="px-6 py-2 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 font-semibold" onClick={handleCancel}>Cancel</button>
-                                <button className="px-6 py-2 rounded-md text-white bg-[#303F26] font-semibold" onClick={handleSave} disabled={uploading}>Save</button>
+                                <button className="px-6 py-2 rounded-md text-white bg-[#303F26] font-semibold" onClick={handleSave} disabled={uploading}>
+                                    {editingProduct ? 'Update' : 'Save'}
+                                </button>
                             </div>
                             <label className="mb-2 block text-sm font-semibold text-[#475569]">Upload Image</label>
                             <div className="flex items-center gap-4">

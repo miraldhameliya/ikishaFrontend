@@ -6,6 +6,7 @@ import { FaChevronRight } from "react-icons/fa";
 import { useHeaderRightButton } from '../contexts/HeaderRightButtonContext';
 import AddCategoryModel from '../components/Modal/AddCategoryModel';
 import { fetchCategory, updateCategoryStatus } from '../redux/services/categoryService';
+import { useNavigate } from 'react-router-dom';
 
 function Category() {
   const [categories, setCategories] = useState([]);
@@ -16,6 +17,7 @@ function Category() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [lastLoadedPage, setLastLoadedPage] = useState(0);
+  const navigate = useNavigate();
 
   // set right model button
   useEffect(() => {
@@ -151,7 +153,7 @@ function Category() {
                 <div className='border mt-3 border-[#C3C7BC]'></div>
               </div>
               <div className="flex items-center justify-between mt-2">
-                <a href="#" className="text-24 text-[#64748B] font-semibold hover:underline">View All Product </a>
+                <button onClick={() => navigate('/product', { state: { categoryId: cat._id } })} className="text-24 text-[#64748B] font-semibold hover:underline bg-transparent border-none cursor-pointer">View All Product</button>
                 <FaChevronRight className="text-[#64748B] text-lg" />
               </div>
             </div>

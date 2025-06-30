@@ -4,7 +4,7 @@ import ringImg from '../assets/icon/Diamond.png';
 import right from '../assets/icon/right.png';
 import left from '../assets/icon/left.png';
 import dropdownIcon from '../assets/icon/dropdown.png';
-import earingImg from '../assets/icon/earing.png';
+
 import { viewProductDetail, fetchAllProduct } from '../redux/services/ProductService';
 
 const ProductDetails = () => {
@@ -14,17 +14,23 @@ const ProductDetails = () => {
 
   // Color mapping for metal types
   const metalTypeColors = [
-    { label: "SL", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-    { label: "10kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-    { label: "10kt", gradient: "bg-gradient-to-tr  from-[#B3B2AF] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
-    { label: "10kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
-    { label: "14kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-    { label: "14kt", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
-    { label: "14kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
-    { label: "18kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-    { label: "18kt", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
-    { label: "18kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
-    { label: "PT", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    // { label: "SL", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    // { label: "10kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    // { label: "10kt", gradient: "bg-gradient-to-tr  from-[#B3B2AF] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
+    // { label: "10kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
+    // { label: "14kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    // { label: "14kt", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
+    // { label: "14kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
+    // { label: "18kt", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    // { label: "18kt", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
+    // { label: "18kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
+    // { label: "PT", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
+    { label: "SL", bg: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", text: "text-[#1E293B]" }, // Silver
+    { label: "10kt", bg: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", text: "text-[#1E293B]" }, // Light yellow
+    { label: "14kt", bg: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", text: "text-[#1E293B]" }, // Yellow
+    { label: "18kt", bg: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", text: "text-[#1E293B]" }, // Dark yellow
+    { label: "PT", bg: "bg-gray-200", text: "text-[#1E293B]" }, // Platinum
+    { label: "Rose", bg: "bg-pink-100", text: "text-[#1E293B]" }, // Rose Gold (if needed)
   ];
 
   // Function to get color based on metal type
@@ -46,6 +52,7 @@ const ProductDetails = () => {
   const [selectedDiamondClarity, setSelectedDiamondClarity] = useState(initialProduct?.varient?.diamondclaritiesId?._id || initialProduct?.diamond_clarity?.[0]?._id || '');
   const [selectedMetalType, setSelectedMetalType] = useState(initialProduct?.varient?.metaltypeId?._id || initialProduct?.metal_type?.[0]?._id || '');
   const [loading, setLoading] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Fetch updated product details from backend
   const fetchUpdatedDetails = async (diamondtypeId, diamondclaritiesId, metaltypeId) => {
@@ -87,6 +94,7 @@ const ProductDetails = () => {
     setSelectedDiamondType(productDetails?.varient?.diamondtypeId?._id || productDetails?.diamond_type?.[0]?._id || '');
     setSelectedDiamondClarity(productDetails?.varient?.diamondclaritiesId?._id || productDetails?.diamond_clarity?.[0]?._id || '');
     setSelectedMetalType(productDetails?.varient?.metaltypeId?._id || productDetails?.metal_type?.[0]?._id || '');
+    setSelectedImageIndex(0); // Reset image index when product changes
   }, [productDetails]);
 
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -111,7 +119,7 @@ const ProductDetails = () => {
   const metalTypes = productDetails?.metal_type || [];
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-4 sm:p-6 bg-[#f5f6fa]">
       <div className="mx-auto">
         <div className="text-lg font-bold mb-2">
           <span 
@@ -122,49 +130,59 @@ const ProductDetails = () => {
           </span>
           <span className="text-sm font-normal text-gray-500"> / Product Details</span>
         </div>
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-8 bg-white rounded-lg p-4 md:p-6">
+        <div className="flex flex-row justify-center items-start gap-8">
           {/* Left: Main Image & Thumbnails */}
-          <div className="flex-1 flex flex-col items-center">
-            <div className="relative w-full max-w-xl h-64 sm:h-80 md:h-[26rem] flex items-center justify-center mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
-              <img src={productDetails?.images && productDetails.images[0]?.url ? productDetails.images[0].url : ringImg} alt="Main" className="w-full h-full object-contain bg-white" />
-              <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white rounded-full shadow p-2 z-10 flex items-center justify-center">
+          <div className="flex flex-col" style={{ width: '700px' }}>
+            <div className="relative w-full h-[500px] flex mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+              <img src={productDetails?.images && productDetails.images[selectedImageIndex]?.url ? productDetails.images[selectedImageIndex].url : ringImg} alt="Main" className="w-full h-full object-contain bg-white" />
+              <button className="absolute left-1 top-1/2 -translate-y-1/2 shadow p-2 z-10 flex items-center justify-center"
+                onClick={() => setSelectedImageIndex(prev => prev > 0 ? prev - 1 : (productDetails?.images?.length ? productDetails.images.length - 1 : 0))}
+                disabled={!productDetails?.images || productDetails.images.length <= 1}
+              >
                 <img src={right} alt='rightSide' className="w-5 h-5" />
               </button>
-              <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full shadow p-2 z-10 flex items-center justify-center">
+              <button className="absolute right-1 top-1/2 -translate-y-1/2 shadow p-2 z-10 flex items-center justify-center"
+                onClick={() => setSelectedImageIndex(prev => prev < (productDetails?.images?.length ? productDetails.images.length - 1 : 0) ? prev + 1 : 0)}
+                disabled={!productDetails?.images || productDetails.images.length <= 1}
+              >
                 <img src={left} alt='leftSide' className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex w-full gap-4 mb-4 overflow-x-auto pb-2">
+            <div className="flex gap-4 mb-4 overflow-x-auto pb-2 w-full max-w-[520px]">
               {productDetails?.images && productDetails.images.length > 0 && productDetails.images.map((img, idx) => (
-                <img
+                <button
                   key={idx}
-                  src={img.url ? img.url : (typeof img === 'string' ? img : ringImg)}
-                  alt="thumb"
-                  className="w-20 h-20 object-cover rounded-lg border border-gray-200 bg-white cursor-pointer shadow-sm flex-shrink-0"
-                />
+                  onClick={() => setSelectedImageIndex(idx)}
+                  className={`w-24 h-24 flex-shrink-0 border ${selectedImageIndex === idx ? 'border-green-500' : 'border-gray-200'} rounded-lg p-1 bg-white shadow-sm flex items-center justify-center`}
+                >
+                  <img
+                    src={img.url ? img.url : (typeof img === 'string' ? img : ringImg)}
+                    alt="thumb"
+                    className="w-full h-full object-cover rounded"
+                  />
+                </button>
               ))}
             </div>
           </div>
-          {/* Right: Product Info */}
-          <div className="flex-1 flex flex-col gap-4">
-            <div className='text-lg sm:text-xl font-bold text-[#1E293B]'>{productDetails?.categoryid?.categoryname || ''}</div>
-            <div className="text-lg sm:text-xl font-bold">{productDetails?.name}</div>
-            <div className="text-[#1E293B] font-semibold">Design Code : <span className="text-[#64748B]">{productDetails?.design_code}</span></div>
-            <div className="text-[#1E293B] font-semibold">
+          {/* Right: Product Info Card */}
+          <div className="flex flex-col items-start bg-white rounded-lg shadow-lg p-8" style={{ width: '700px', minHeight: '500px' }}>
+            <div className='text-2xl font-bold text-[#1E293B] mb-2'>{productDetails?.name}</div>
+            <div className='text-base font-semibold text-[#1E293B] mb-2'>Design Code : <span className="text-[#64748B]">{productDetails?.design_code}</span></div>
+            <div className="text-base font-semibold text-[#1E293B] mb-2">
               Price : <span className="text-[#64748B]">
                 ₹ {productDetails?.varient?.varientprice ?? productDetails?.totalamount ?? productDetails?.price}
               </span>
             </div>
-            <div className="text-[#1E293B] font-semibold">Metal Type: <span className="text-[#64748B]">{
+            <div className="text-base font-semibold text-[#1E293B] mb-2">Metal Type: <span className="text-[#64748B]">{
               metalTypes.find(m => m._id === selectedMetalType)?.name || ''
             }</span></div>
-            <div className="flex gap-2 my-2 flex-wrap">
+            <div className="flex gap-2 my-2 flex-wrap mb-4">
               {metalTypes.map((type) => {
                 const colorConfig = getMetalTypeColor(type.name);
                 return (
                   <button
                     key={type._id}
-                    className={`w-12 h-12 flex items-center justify-center rounded-full font-bold text-xs shadow ${colorConfig.gradient} ${colorConfig.text} ${selectedMetalType === type._id ? "ring-2 ring-green-500" : ""}`}
+                    className={`w-12 h-12 flex items-center justify-center rounded-full font-bold text-xs shadow ${colorConfig.bg} ${colorConfig.text} ${selectedMetalType === type._id ? "border-2 border-green-500" : "border border-gray-200"}`}
                     onClick={() => handleMetalTypeChange(type._id)}
                     disabled={loading}
                   >
@@ -173,12 +191,12 @@ const ProductDetails = () => {
                 );
               })}
             </div>
-            <div className="flex flex-col gap-2 mt-2">
+            <div className="flex flex-col gap-4">
               <div>
                 <label className="block text-sm font-semibold text-[#1E293B] mb-1">Diamond Type</label>
                 <div className="relative w-full">
                   <select
-                    className="w-full px-3 py-2 bg-white appearance-none focus:outline-none focus:ring-0 text-[#64748B]"
+                    className="w-full px-3 py-2 bg-[#f5f6fa] appearance-none focus:outline-none focus:ring-0 text-[#64748B] rounded"
                     value={selectedDiamondType}
                     onChange={e => handleDiamondTypeChange(e.target.value)}
                     disabled={loading}
@@ -199,7 +217,7 @@ const ProductDetails = () => {
                 <label className="block text-sm font-semibold text-[#1E293B] mb-1 ">Diamond Clarity</label>
                 <div className="relative w-full">
                   <select
-                    className="w-full px-3 py-2 bg-white appearance-none focus:outline-none focus:ring-0 text-[#64748B]"
+                    className="w-full px-3 py-2 bg-[#f5f6fa] appearance-none focus:outline-none focus:ring-0 text-[#64748B] rounded"
                     value={selectedDiamondClarity}
                     onChange={e => handleDiamondClarityChange(e.target.value)}
                     disabled={loading}

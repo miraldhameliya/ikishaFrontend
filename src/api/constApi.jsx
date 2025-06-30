@@ -48,7 +48,7 @@ export const ALLWOP_TYPE = '/admin/diamondtype/?search='
 
 export const PRODUCT_LIST = '/admin/products';
 export const ADD_PRODUCT_LIST = '/admin/products/create'
-export const UPDATE_PRODUCT_LIST = '/admin/product/update';
+export const UPDATE_PRODUCT_LIST = '/admin/product/create';
 export const VIEW_PRODUCT_LIST = '/admin/product/view';
 export const ALLWOP = '/admin/products/?search='
 export const VIEW_ONE_PRODUCT = '/admin/products/getone?productId=&diamondtypeId='
