@@ -13,13 +13,14 @@ import { allWopType } from '../../../redux/services/diamondTypeService';
 import { allWop } from '../../../redux/services/categoryService';
 import SimpleDropdown from './SimpleDropdown';
 
+
 const InputField = ({ label, placeholder, value, onChange, ...props }) => (
     <div className="flex flex-col">
         <label className="mb-1 text-sm font-bold text-[#475569]">{label}</label>
         <input
             type="text"
             placeholder={placeholder}
-            className="px-4 py-2 rounded-md focus:outline-gray-300 bg-[#F3F4F9] "
+            className="px-4 py-2 rounded-md  focus:outline-gray-300 bg-[#F3F4F9] "
             value={value}
             onChange={onChange}
             {...props}
@@ -539,9 +540,9 @@ const AddProduct = () => {
                         </div>
                         <div className="mb-8 space-y-6 text-[#334155]">
                             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"> */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-2     md:grid-cols-4 gap-6">
                                 <div className="relative flex flex-col">
-                                    <label className="mb-1 text-sm font-bold text-[#475569]">Category</label>
+                                    <label className="text-sm font-bold text-[#475569]">Category</label>
                                     <SimpleDropdown
                                         // label="Category"
                                         options={categoryOptions}
@@ -549,18 +550,18 @@ const AddProduct = () => {
                                         onChange={cat => setFormState(f => ({ ...f, category: cat._id }))}
                                         displayKey="categoryname"
                                         placeholder="Select Category"
-                                        className='text-lg'
+                                    // className='text-lg'
                                     />
                                     {errors.category && <div className="text-red-500 text-xs mt-1">{errors.category}</div>}
                                 </div>
-                                <InputField label="Laboure Price/gm" placeholder="Enter price/gm" value={formState.labourPricePerGm} onChange={e => setFormState(f => ({ ...f, labourPricePerGm: e.target.value }))} />
+                                <InputField label="Laboure Price/gm" placeholder="Enter price" value={formState.labourPricePerGm} onChange={e => setFormState(f => ({ ...f, labourPricePerGm: e.target.value }))} />
                                 {errors.labourPricePerGm && <div className="text-red-500 text-xs mt-1">{errors.labourPricePerGm}</div>}
-                                <InputField label="Laboure Price" placeholder="Auto" value={formState.labourPrice} readOnly />
-                                <InputField label="Other Price" placeholder="Auto" value={formState.otherPrice} readOnly />
+                                <InputField label="Laboure Price" placeholder="Enter price" value={formState.labourPrice} readOnly />
+                                <InputField label="Other Price" placeholder="Enter price" value={formState.otherPrice} readOnly />
                                 {/* <InputField label="Total Amount" placeholder="Enter price" value={formState.totalAmount} onChange={e => setFormState(f => ({ ...f, totalAmount: e.target.value }))} /> */}
 
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-3 md:grid-cols-3 gap-6">
                                 <InputField label="Design No." placeholder="Enter design no" value={formState.designNo} onChange={e => setFormState(f => ({ ...f, designNo: e.target.value }))} />
                                 {errors.designNo && <div className="text-red-500 text-xs mt-1">{errors.designNo}</div>}
                                 <InputField label="G. WT" placeholder="Enter weight" value={formState.gwt} onChange={e => setFormState(f => ({ ...f, gwt: e.target.value }))} />
@@ -568,7 +569,7 @@ const AddProduct = () => {
                                 <InputField label="D. WT" placeholder="Enter weight" value={formState.dwt} onChange={e => setFormState(f => ({ ...f, dwt: e.target.value }))} />
                                 {errors.dwt && <div className="text-red-500 text-xs mt-1">{errors.dwt}</div>}
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-3 md:grid-cols-3 gap-6">
                                 <InputField label="Label No." placeholder="Enter label no" value={formState.labelNo} onChange={e => setFormState(f => ({ ...f, labelNo: e.target.value }))} />
                                 {errors.labelNo && <div className="text-red-500 text-xs mt-1">{errors.labelNo}</div>}
                                 <InputField label="N. WT" placeholder="Auto" value={formState.nwt} readOnly />
@@ -579,8 +580,8 @@ const AddProduct = () => {
                         <div className="flex-1 flex flex-col gap-8">
                             <div>
                                 <div className="flex justify-end items-center mb-4">
-                                    <button className="bg-[#303f26] text-white px-3 py-1 text-sm font-semibold flex items-center gap-1" onClick={handleAddDiamondRow}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <button className="bg-[#303f26] text-white px-2 py-1 text-sm font-semibold flex items-center gap-1" onClick={handleAddDiamondRow}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 bg-white text-[#303F26] rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} >
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                         </svg>
                                         Add
@@ -601,10 +602,10 @@ const AddProduct = () => {
                             <div>
                                 <div className="flex justify-end items-center mb-4">
                                     <button
-                                        className="bg-[#303f26] text-white px-3 py-1 text-sm font-semibold flex items-center gap-1"
+                                        className="bg-[#303f26] text-white px-2 py-1 text-sm font-semibold flex items-center gap-1"
                                         onClick={handleAddOtherChargeRow}
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 bg-white text-[#303F26] rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                         </svg>
                                         Add
@@ -647,7 +648,7 @@ const AddProduct = () => {
                             </div>
                         </div>
 
-                        <div className="flex gap-6 mt-4">
+                        <div className="flex gap-6 mt-4 max-sm:flex-col">
                             <SimpleDropdown
                                 label="Diamond Type"
                                 options={diamondTypeOptions}

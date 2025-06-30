@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from 'react-icons/fa';
+import Deleteicon from "../../../assets/icon/delete.png"
 
 // Custom dropdown without Listbox
 const CustomDropdown = ({ value, onChange, options, optionLabel = 'label', optionValue = '_id', placeholder = 'Select' }) => {
@@ -102,12 +103,14 @@ const DiamondDetailRow = ({
                 <input type="text" value={weight} onChange={e => onWeightChange(e.target.value)} className="w-full px-1 py-0.5 text-center focus:outline-none" />
             </td>
             <td className="w-32 min-h-[40px] border border-[#94A3B8] text-center">{totalPrice}</td>
-            <td className="text-center w-12 min-h-[40px] border border-[#94A3B8]">
+            <td className="text-center lg:w-72  md:w-10 min-h-[40px] border border-[#94A3B8]">
                 {!isBlank && (
                     <button className="text-red-500 hover:text-red-700" onClick={onDelete}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
-                        </svg>
+                        <img
+                            src={Deleteicon}
+                            alt="deleteicon"
+                            className="w-4 h-4"
+                        />
                     </button>
                 )}
             </td>
@@ -154,11 +157,11 @@ const DiamondDetailsTable = ({
             <div className="text-center font-semibold py-1 border-b border-[#94A3B8] text-[#1E293B] bg-white">
                 Diamond Details
             </div>
-            <div className="flex bg-white">
+            <div className="flex bg-white gap-3 overflow-auto">
                 {diamondTypeOptions.map((diamondType) => (
                     <button
                         key={diamondType?._id}
-                        className={`flex-1 py-1 text-center font-semibold text-[#1E293B] focus:outline-none ${activeTab === diamondType.type ? 'border-b-4 border-[#475569]' : 'border-b-4 border-transparent'} transition-all`}
+                        className={`flex-1 py-1 text-center font-normal text-[#475569] hover:text-[#334155] focus:outline-none ${activeTab === diamondType.type ? 'border-b-4 text-[#475569] font-semibold border-[#475569]' : 'border-b-4 border-transparent'} transition-all`}
                         onClick={() => onTabChange(diamondType?.type)}
                     >
                         {diamondType.type}

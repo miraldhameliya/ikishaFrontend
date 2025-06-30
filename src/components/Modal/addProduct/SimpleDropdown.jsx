@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Dropdown from "../../../assets/icon/Dropdown.png"
 
 const SimpleDropdown = ({ label, options, value, onChange, displayKey = 'name', placeholder = 'Select...', className = '', multi = false }) => {
     const [open, setOpen] = useState(false);
@@ -12,7 +13,7 @@ const SimpleDropdown = ({ label, options, value, onChange, displayKey = 'name', 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-    
+
     // For multi-select, value is an array
     const isSelected = (opt) => {
         if (!multi) return (typeof value === 'object' ? value._id : value) === opt._id;
@@ -43,37 +44,40 @@ const SimpleDropdown = ({ label, options, value, onChange, displayKey = 'name', 
         }
     };
     return (
-        <div className={`relative min-w-[180px] ${className}`} ref={ref}>
+        <div className={`relative min-w-[1px] ${className}`} ref={ref}>
             <label className="mb-1 text-sm font-semibold text-[#475569] block">{label}</label>
             <button
                 type="button"
-                className={`w-full px-3 py-2 bg-[#F3F4F9] rounded-lg text-left flex items-center justify-between text-sm font-medium  focus:outline-none ${open ? 'shadow-lg' : ''}`}
+                className={`w-full gap-2 px-3 py-2 bg-[#F3F4F9] rounded-lg  flex items-center justify-between text-sm font-normal text-[#94A3B8] hover:bg-gray-200 focus:outline-none ${open ? 'shadow-lg' : ''}`}
                 onClick={() => setOpen((prev) => !prev)}
             >
                 {multi ? (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 items-center">
                         {Array.isArray(value) && value.length > 0 ? value.map((v, i) => (
-                            <span key={i} className="inline-flex items-center bg-green-200 text-green-800 px-2 py-0.5 rounded-full text-xs font-semibold text-base">
+                            <span key={i} className="inline-flex  gap-1 items-center bg-[#81C995] text-[#FFFFFF] px-2  text-xs">
                                 {typeof v === 'object' ? v[displayKey] : options.find(opt => opt._id === v)?.[displayKey]}
                                 <span
-                                    className="ml-1 cursor-pointer text-green-800 hover:text-red-600 focus:outline-none"
+                                    className="text-center text-[20px] cursor-pointer text-white hover:text-red-600 focus:outline-none"
                                     onClick={e => { e.stopPropagation(); handleRemoveTag(v); }}
                                     tabIndex={0}
                                     role="button"
                                 >×</span>
                             </span>
-                        )) : <span className="truncate text-base text-[#94A3B8] hover:bg-gray-200">{placeholder}</span>}
+                        )) : <span className="truncate text-[15px]">{placeholder}</span>}
                     </div>
                 ) : (
                     value ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-base">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full">
                             {typeof value === 'object' ? value[displayKey] : options.find(opt => opt._id === value)?.[displayKey]}
                         </span>
-                    ) : <span className="truncate text-md">{placeholder}</span>
+                    ) : <span className="truncate text-[15px]">{placeholder}</span>
                 )}
-                <svg className="ml-3 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                {/* <img alt='' className='' /> */}
+                <img
+                    src={Dropdown}
+                    alt="dropdown"
+                    className="w-4 h-4"
+                />
             </button>
             {open && (
                 <div className="absolute z-10 mt-1 w-full min-w-0 max-w-xs bg-white rounded-lg shadow-lg max-h-40 overflow-y-auto">
@@ -88,7 +92,7 @@ const SimpleDropdown = ({ label, options, value, onChange, displayKey = 'name', 
                                     type="checkbox"
                                     checked={isSelected(opt)}
                                     readOnly
-                                    className="mr-2 align-middle"
+                                    className="mr-2 text-xl align-middle"
                                 />
                             )}
                             {opt[displayKey]}

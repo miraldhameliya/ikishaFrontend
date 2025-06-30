@@ -1,4 +1,5 @@
 import React from 'react';
+import Deleteicon from "../../../assets/icon/delete.png"
 
 const AddOtherCharges = ({ rows, setRows }) => {
   const handleDelete = (idx) => {
@@ -33,11 +34,11 @@ const AddOtherCharges = ({ rows, setRows }) => {
       <table className="min-w-full bg-white border border-gray-400 ">
         <thead>
           <tr>
-            <th colSpan={4} className="text-center text-base text-[#1E293B] py-1 border border-gray-400">
+            <th colSpan={4} className="text-center font-semibold py-1 border-b border-[#94A3B8] text-[#1E293B] bg-white">
               Other Charge
             </th>
           </tr>
-          <tr className="text-sm text-gray-500 text-center">
+          <tr className="text-sm text-[#334155] text-center">
             <th className="p-1 font-semibold border border-gray-400 text-center">Product</th>
             <th className="p-1 font-semibold border border-gray-400 text-center">Weight</th>
             <th className="p-1 font-semibold border border-gray-400 text-center">Amount</th>
@@ -50,7 +51,7 @@ const AddOtherCharges = ({ rows, setRows }) => {
               <td className="p-1 border border-gray-400 text-center">
                 <input
                   type="text"
-                  className="w-full text-center text-[#94A3B8] focus:outline-none"
+                  className="w-full text-center text-[#334155] focus:outline-none"
                   value={row.product}
                   onChange={e => handleInputChange(idx, 'product', e.target.value)}
                 />
@@ -58,7 +59,7 @@ const AddOtherCharges = ({ rows, setRows }) => {
               <td className="p-1 border border-gray-400 text-center">
                 <input
                   type="text"
-                  className="w-full text-center  text-[#94A3B8] focus:outline-none"
+                  className="w-full text-center  text-[#334155] focus:outline-none"
                   value={row.weight}
                   onChange={e => handleInputChange(idx, 'weight', e.target.value)}
                 />
@@ -66,19 +67,21 @@ const AddOtherCharges = ({ rows, setRows }) => {
               <td className="p-1 border border-gray-400 text-center">
                 <input
                   type="text"
-                  className="w-full text-center text-[#94A3B8] focus:outline-none"
+                  className="w-full text-center text-[#334155] focus:outline-none"
                   value={row.amount}
                   onChange={e => handleInputChange(idx, 'amount', e.target.value)}
                 />
               </td>
-              <td className="p-1 border border-gray-400 text-center">
+              <td className="p-1 border w-13 border-gray-400 text-center">
                 <button
                   className="text-red-500 hover:text-red-700"
                   onClick={() => handleDelete(idx)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
-                  </svg>
+                  <img
+                    src={Deleteicon}
+                    alt="deleteicon"
+                    className="w-4 h-4"
+                  />
                 </button>
               </td>
             </tr>

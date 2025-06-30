@@ -25,11 +25,11 @@ const ProductDetails = () => {
     // { label: "18kt", gradient: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", border: "", text: "text-[#1E293B]" },
     // { label: "18kt", gradient: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", border: "", text: "text-[#1E293B]" },
     // { label: "PT", gradient: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", border: "", text: "text-[#1E293B]" },
-    { label: "SL", bg: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", text: "text-[#1E293B]" }, // Silver
-    { label: "10kt", bg: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", text: "text-[#1E293B]" }, // Light yellow
-    { label: "14kt", bg: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", text: "text-[#1E293B]" }, // Yellow
-    { label: "18kt", bg: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", text: "text-[#1E293B]" }, // Dark yellow
-    { label: "PT", bg: "bg-gray-200", text: "text-[#1E293B]" }, // Platinum
+    { label: "SL", bg: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", text: "text-[#1E293B]", border: "border-2 border-[#6D865D]", }, // Silver
+    { label: "10kt", bg: "bg-gradient-to-tr from-[#B3B2AF] to-[#F7F7F7] to-[#F7F7F7] to-[#B3B2AF]", text: "text-[#1E293B]", border: "border-2 border-gray-500", }, // Light yellow
+    { label: "14kt", bg: "bg-gradient-to-tr from-[#E1B94F] to-[#FCF1D5] to-[#FCF1D5] to-[#E1B94F]", text: "text-[#1E293B]", border: "border-2 border-gray-500", }, // Yellow
+    { label: "18kt", bg: "bg-gradient-to-tr from-[#EC8A55] to-[#FCEDE2] to-[#FCEDE2] to-[##EC8A55]", text: "text-[#1E293B]", border: "border-2 border-[#EC8A55]", }, // Dark yellow
+    { label: "PT", bg: "bg-gray-200", text: "text-[#1E293B]", border: "border-2 border-gray-500", }, // Platinum
     { label: "Rose", bg: "bg-pink-100", text: "text-[#1E293B]" }, // Rose Gold (if needed)
   ];
 
@@ -212,14 +212,26 @@ const ProductDetails = () => {
               {metalTypes.map((type) => {
                 const colorConfig = getMetalTypeColor(type.name);
                 return (
+                  // <button
+                  //   key={type._id}
+                  //   className={`w-9 h-9 flex items-center justify-center rounded-full font-normal text-[13px] shadow ${colorConfig.bg} ${colorConfig.text} ${selectedMetalType === type._id ? "border-2 border-green-500" : "border border-gray-200"}`}
+                  //   onClick={() => handleMetalTypeChange(type._id)}
+                  //   disabled={loading}
+                  // >
+                  //   {type.name.split('/')[0]}
+                  // </button>
                   <button
                     key={type._id}
-                    className={`w-9 h-9 flex items-center justify-center rounded-full font-normal text-[13px] shadow ${colorConfig.bg} ${colorConfig.text} ${selectedMetalType === type._id ? "border-2 border-green-500" : "border border-gray-200"}`}
+                    className={`w-9 h-9 flex items-center justify-center rounded-full font-normal text-[13px] shadow 
+                    ${colorConfig.bg} 
+                    ${colorConfig.text} 
+                    ${selectedMetalType === type._id ? colorConfig.border : ""}`}
                     onClick={() => handleMetalTypeChange(type._id)}
                     disabled={loading}
                   >
                     {type.name.split('/')[0]}
                   </button>
+
                 );
               })}
             </div>
@@ -228,7 +240,7 @@ const ProductDetails = () => {
               <label className="block lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B] mb-2">Diamond Type</label>
               <div className="relative">
                 <select
-                  className="lg:w-[26.5rem] md:w-full w-full px-6 py-2 bg-[#F3F4F6] lg:text-base 2xl:text-[13px] lg:mb-4 appearance-none font-semibold focus:outline-none focus:ring-0 text-[#64748B] rounded"
+                  className="lg:w-[26.5rem] md:w-full w-full px-6 py-2 lg:text-base 2xl:text-[13px] bg-[#F3F4F6] text-xs appearance-none focus:outline-none focus:ring-0 font-semibold text-[#64748B] rounded"
                   value={selectedDiamondType}
                   onChange={e => handleDiamondTypeChange(e.target.value)}
                   disabled={loading}
@@ -256,7 +268,7 @@ const ProductDetails = () => {
                 >
                   <option value="" disabled>Select Diamond Clarity</option>
                   {diamondClarities.map(clarity => (
-                    <option key={clarity._id} value={clarity._id} className='lg:text-base 2xl:text-[15px] text-red-700'>{clarity.grade}</option>
+                    <option key={clarity._id} value={clarity._id} className='lg:text-base 2xl:text-[15px]'>{clarity.grade}</option>
                   ))}
                 </select>
                 <img

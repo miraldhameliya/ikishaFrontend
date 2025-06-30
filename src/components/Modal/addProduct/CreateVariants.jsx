@@ -1,4 +1,5 @@
 import React from 'react';
+import Deleteicon from "../../../assets/icon/delete.png"
 
 function CreateVariants({ diamondTypes = [], diamondClarities = [], metalTypes = [], diamondPriceMap = {}, variants, setVariants, labourPrice = 0, otherPrice = 0 }) {
   variants = Array.isArray(variants) ? variants : [];
@@ -91,11 +92,11 @@ function CreateVariants({ diamondTypes = [], diamondClarities = [], metalTypes =
           <thead>
             <tr className="bg-gray-100 text-[#334155] text-sm">
               <th className="p-1 border border-gray-300 text-center">Sr.no</th>
-              <th className="p-1 border border-gray-300 text-center">Variants</th>
+              <th className="p-1 w-24 border border-gray-300 text-center">Variants</th>
               <th className="p-1 border border-gray-300 text-center">Metal Price</th>
               <th className="p-1 border border-gray-300 text-center">Diamond Price</th>
               <th className="p-1 border border-gray-300 text-center">Total Price</th>
-              <th className="p-1 border border-gray-300 text-center"></th>
+              <th className="p-1 w-13 border border-gray-300 text-center"></th>
             </tr>
           </thead>
           <tbody>
@@ -134,14 +135,19 @@ function CreateVariants({ diamondTypes = [], diamondClarities = [], metalTypes =
                     onChange={e => handleInputChange(idx, 'manualTotalPrice', e.target.value)}
                   />
                 </td>
-                <td className="p-1 border border-gray-300 text-center">
+                <td className="p-1 w-13 border border-gray-300 text-center">
                   <button
                     className="text-red-500 hover:text-red-700"
                     onClick={() => handleDelete(idx)}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
-                    </svg>
+                    </svg> */}
+                    <img
+                      src={Deleteicon}
+                      alt="deleteicon"
+                      className="w-4 h-4"
+                    />
                   </button>
                 </td>
               </tr>
