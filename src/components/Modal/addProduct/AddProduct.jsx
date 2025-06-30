@@ -15,7 +15,7 @@ import SimpleDropdown from './SimpleDropdown';
 
 const InputField = ({ label, placeholder, value, onChange, ...props }) => (
     <div className="flex flex-col">
-        <label className="mb-1 text-sm font-semibold text-[#475569]">{label}</label>
+        <label className="mb-1 text-sm font-bold text-[#475569]">{label}</label>
         <input
             type="text"
             placeholder={placeholder}
@@ -140,7 +140,7 @@ const AddProduct = () => {
                     });
                 });
                 setDiamondRows(grouped);
-                
+
                 // Set active tab to the first diamond type that has data
                 const firstTypeWithData = Object.keys(grouped)[0];
                 if (firstTypeWithData && !activeTab) {
@@ -229,7 +229,7 @@ const AddProduct = () => {
                     });
                 });
                 setDiamondRows(grouped);
-                
+
                 // Set active tab
                 const firstTypeWithData = Object.keys(grouped)[0];
                 if (firstTypeWithData) {
@@ -381,17 +381,17 @@ const AddProduct = () => {
     const handleSave = async () => {
         console.log("handleSave called");
         console.log("editingProduct:", editingProduct);
-        
+
         const validationErrors = validateForm();
         console.log("Validation errors found:", validationErrors);
-        
+
         if (Object.keys(validationErrors).length > 0) {
             console.log("Validation errors:", validationErrors);
             setErrors(validationErrors);
             return;
         }
         setErrors({});
-        
+
         try {
             console.log("Starting to build payload...");
             const diamond_details = Object.entries(diamondRows)
@@ -414,7 +414,7 @@ const AddProduct = () => {
                     })
                 );
             console.log("diamond_details built:", diamond_details);
-            
+
             // Build other_charges array
             const other_charges = draftOtherChargeRows.map(row => {
                 let amount = row.amount;
@@ -429,11 +429,11 @@ const AddProduct = () => {
                 };
             });
             console.log("other_charges built:", other_charges);
-            
+
             // Build images array (only selected images)
             const imagesArr = images.map(url => ({ url }));
             console.log("images built:", imagesArr);
-            
+
             // Collect diamond_type, diamond_clarity, metal_type as arrays (single selection)
             const diamondTypeIds = diamondTypes.map(type => typeof type === "object" ? type._id : type);
             const diamondClarityIds = diamondClarities.map(clarity => typeof clarity === "object" ? clarity._id : clarity);
@@ -441,7 +441,7 @@ const AddProduct = () => {
             console.log("diamondTypeIds:", diamondTypeIds);
             console.log("diamondClarityIds:", diamondClarityIds);
             console.log("metalTypeIds:", metalTypeIds);
-            
+
             // Calculate varientprice for each variant
             const labourPriceNum = parseFloat(formState.labourPrice) || 0;
             const otherPriceNum = parseFloat(formState.otherPrice) || 0;
@@ -454,7 +454,7 @@ const AddProduct = () => {
                 };
             });
             console.log("variantsWithPrice built:", variantsWithPrice);
-            
+
             // Map formState to backend keys
             const payload = {
                 productId: '', // If editing, set the product ID
@@ -477,9 +477,9 @@ const AddProduct = () => {
                 metal_type: metalTypeIds,
                 varient: variantsWithPrice,
             };
-            
+
             console.log("Full payload built:", payload);
-            
+
             if (editingProduct) {
                 payload.productId = editingProduct._id;
                 console.log("EDITING MODE - Product ID:", editingProduct._id);
@@ -494,7 +494,7 @@ const AddProduct = () => {
                 const result = await addProduct(payload);
                 console.log("addProduct result:", result);
             }
-            
+
             console.log("API call successful, navigating to /product");
             navigate('/product');
         } catch (error) {
@@ -528,8 +528,8 @@ const AddProduct = () => {
                     {/* Left Column */}
                     <div className="w-full lg:w-1/2">
                         <div className="flex items-center justify-between mb-8 mt-5">
-                            <h2 className="text-xl font-bold text-gray-800">
-                                {editingProduct ? 'Edit Product' : 'Add Product'}
+                            <h2 className="text-xl font-bold text-[#1E293B">
+                                {editingProduct ? 'Edit Product' : 'Product Details'}
                             </h2>
                             {/* {editingProduct && (
                                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -541,15 +541,15 @@ const AddProduct = () => {
                             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"> */}
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div className="relative flex flex-col">
-                                    {/* <label className="mb-1 text-sm font-semibold text-[#475569]">Category</label> */}
+                                    <label className="mb-1 text-sm font-bold text-[#475569]">Category</label>
                                     <SimpleDropdown
-                                        label="Category"
+                                        // label="Category"
                                         options={categoryOptions}
                                         value={formState.category}
                                         onChange={cat => setFormState(f => ({ ...f, category: cat._id }))}
                                         displayKey="categoryname"
                                         placeholder="Select Category"
-                                        // className='text-lg'
+                                        className='text-lg'
                                     />
                                     {errors.category && <div className="text-red-500 text-xs mt-1">{errors.category}</div>}
                                 </div>
