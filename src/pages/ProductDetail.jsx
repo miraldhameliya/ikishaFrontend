@@ -36,10 +36,10 @@ const ProductDetails = () => {
   // Function to get color based on metal type
   const getMetalTypeColor = (metalName) => {
     const metalType = metalName.split('/')[0]; // Get first part (e.g., "10kt", "18kt")
-    
+
     // Find matching color based on exact metal type name
     const colorConfig = metalTypeColors.find(color => color.label === metalType);
-    
+
     // Return the matching color or default to first color if not found
     return colorConfig || metalTypeColors[0];
   };
@@ -119,61 +119,81 @@ const ProductDetails = () => {
   const metalTypes = productDetails?.metal_type || [];
 
   return (
-    <div className="p-4 sm:p-6 bg-[#f5f6fa]">
+    <div className="pt-5  bg-[#f5f6fa]">
       <div className="mx-auto">
-        <div className="text-lg font-bold mb-2">
-          <span 
-            className="cursor-pointer hover:text-[#303F26] transition-colors"
+        <div className="text-lg font-bold mb-3 pl-4">
+          <span
+            className="cursor-pointer text-[17px] font-bold text-[#1B1F2B] hover:text-[#303F26] transition-colors"
             onClick={() => navigate('/product')}
           >
             Product
           </span>
-          <span className="text-sm font-normal text-gray-500"> / Product Details</span>
+          <span className="text-[11px] font-semibold text-gray-500 ml-1.5 relative top-[3px]">
+            / Product Details
+          </span>
         </div>
-        <div className="flex flex-row justify-center items-start gap-8">
+
+        <div className="flex 2xl:px-[95px] xl:px-[70px] lg:px-[40px] 2xl:gap-20 xl:gap-16">
           {/* Left: Main Image & Thumbnails */}
-          <div className="flex flex-col" style={{ width: '700px' }}>
-            <div className="relative w-full h-[500px] flex mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
-              <img src={productDetails?.images && productDetails.images[selectedImageIndex]?.url ? productDetails.images[selectedImageIndex].url : ringImg} alt="Main" className="w-full h-full object-contain bg-white" />
+          <div className="" >
+            <div className="relative 2xl:w-[850px] 2xl:h-[510px] xl:w-[700px] xl:h-[400px] lg:w-[480px] lg:h-[350px] flex mb-4 bg-white shadow-lg overflow-hidden">
+              <img src={productDetails?.images && productDetails.images[selectedImageIndex]?.url ? productDetails.images[selectedImageIndex].url : ringImg} alt="Main" className="w-full   bg-white" />
               <button className="absolute left-1 top-1/2 -translate-y-1/2 shadow p-2 z-10 flex items-center justify-center"
                 onClick={() => setSelectedImageIndex(prev => prev > 0 ? prev - 1 : (productDetails?.images?.length ? productDetails.images.length - 1 : 0))}
                 disabled={!productDetails?.images || productDetails.images.length <= 1}
               >
-                <img src={right} alt='rightSide' className="w-5 h-5" />
+                <img src={right} alt='rightSide' className="xl:w-9 xl:h-9 lg:w-5 lg:h-5 " />
               </button>
               <button className="absolute right-1 top-1/2 -translate-y-1/2 shadow p-2 z-10 flex items-center justify-center"
                 onClick={() => setSelectedImageIndex(prev => prev < (productDetails?.images?.length ? productDetails.images.length - 1 : 0) ? prev + 1 : 0)}
                 disabled={!productDetails?.images || productDetails.images.length <= 1}
               >
-                <img src={left} alt='leftSide' className="w-5 h-5" />
+                <img src={left} alt='leftSide' className="xl:w-9 xl:h-9 lg:w-5 lg:h-5" />
               </button>
             </div>
-            <div className="flex gap-4 mb-4 overflow-x-auto pb-2 w-full max-w-[520px]">
+            {/* <div className="flex gap-4 overflow-x-auto pb-2 w-full 2xl:w-[850px]">
               {productDetails?.images && productDetails.images.length > 0 && productDetails.images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImageIndex(idx)}
-                  className={`w-24 h-24 flex-shrink-0 border ${selectedImageIndex === idx ? 'border-green-500' : 'border-gray-200'} rounded-lg p-1 bg-white shadow-sm flex items-center justify-center`}
+                  className={`   ${selectedImageIndex === idx ? '' : ''} bg-white flex items-center justify-center`}
                 >
                   <img
                     src={img.url ? img.url : (typeof img === 'string' ? img : ringImg)}
                     alt="thumb"
-                    className="w-full h-full object-cover rounded"
+                    className="2xl:w-[205px] 2xl:h-[210px] xl:w-[150px] xl:h-[150px] overflow-auto object-cover rounded"
+                  />
+                </button>
+              ))}
+            </div> */}
+            <div className="flex gap-4 overflow-x-auto pb-2  2xl:w-[850px] xl:w-[700px]">
+              {productDetails?.images && productDetails.images.length > 0 && productDetails.images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedImageIndex(idx)}
+                  className={`2xl:min-w-[200px] 2xl:min-h-[210px] xl:min-w-[163px] xl:min-h-[150px] ${selectedImageIndex === idx ? '' : ''} bg-white flex items-center justify-center`}
+                >
+                  <img
+                    src={img.url ? img.url : (typeof img === 'string' ? img : ringImg)}
+                    alt="thumb"
+                    className="w-full h-full object-cover bg-cover"
                   />
                 </button>
               ))}
             </div>
+
           </div>
           {/* Right: Product Info Card */}
-          <div className="flex flex-col items-start bg-white rounded-lg shadow-lg p-8" style={{ width: '700px', minHeight: '500px' }}>
-            <div className='text-2xl font-bold text-[#1E293B] mb-2'>{productDetails?.name}</div>
-            <div className='text-base font-semibold text-[#1E293B] mb-2'>Design Code : <span className="text-[#64748B]">{productDetails?.design_code}</span></div>
-            <div className="text-base font-semibold text-[#1E293B] mb-2">
+          <div className="bg-white rounded-lg px-4 py-2 w-full 2xl:h-[500px] xl:h-[400px]">
+            <div className='text-2xl font-bold text-[#1E293B] mb-3'>{productDetails?.name}</div>
+            <div className='lg:text-lg 2xl:text-2xl font-bold text-[#1E293B] mb-3'>Tri-Color Gold Multi-Band Diamond Engagement Ring</div>
+            <div className='lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B] mb-3'>Design Code : <span className="text-[#64748B]">{productDetails?.design_code}</span></div>
+            <div className="lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B] mb-3">
               Price : <span className="text-[#64748B]">
                 ₹ {productDetails?.varient?.varientprice ?? productDetails?.totalamount ?? productDetails?.price}
               </span>
             </div>
-            <div className="text-base font-semibold text-[#1E293B] mb-2">Metal Type: <span className="text-[#64748B]">{
+            <div className="lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B] mb-2">Metal Type: <span className="text-[#64748B]">{
               metalTypes.find(m => m._id === selectedMetalType)?.name || ''
             }</span></div>
             <div className="flex gap-2 my-2 flex-wrap mb-4">
@@ -182,7 +202,7 @@ const ProductDetails = () => {
                 return (
                   <button
                     key={type._id}
-                    className={`w-12 h-12 flex items-center justify-center rounded-full font-bold text-xs shadow ${colorConfig.bg} ${colorConfig.text} ${selectedMetalType === type._id ? "border-2 border-green-500" : "border border-gray-200"}`}
+                    className={`w-9 h-9 flex items-center justify-center rounded-full font-normal text-[13px] shadow ${colorConfig.bg} ${colorConfig.text} ${selectedMetalType === type._id ? "border-2 border-[#6D865D]" : "border border-gray-200"}`}
                     onClick={() => handleMetalTypeChange(type._id)}
                     disabled={loading}
                   >
@@ -191,50 +211,50 @@ const ProductDetails = () => {
                 );
               })}
             </div>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[#1E293B] mb-1">Diamond Type</label>
-                <div className="relative w-full">
-                  <select
-                    className="w-full px-3 py-2 bg-[#f5f6fa] appearance-none focus:outline-none focus:ring-0 text-[#64748B] rounded"
-                    value={selectedDiamondType}
-                    onChange={e => handleDiamondTypeChange(e.target.value)}
-                    disabled={loading}
-                  >
-                    <option value="" disabled>Select Diamond Type</option>
-                    {diamondTypes.map(type => (
-                      <option key={type._id} value={type._id}>{type.type}</option>
-                    ))}
-                  </select>
-                  <img
-                    src={dropdownIcon}
-                    alt="dropdown"
-                    className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-[#1E293B] mb-1 ">Diamond Clarity</label>
-                <div className="relative w-full">
-                  <select
-                    className="w-full px-3 py-2 bg-[#f5f6fa] appearance-none focus:outline-none focus:ring-0 text-[#64748B] rounded"
-                    value={selectedDiamondClarity}
-                    onChange={e => handleDiamondClarityChange(e.target.value)}
-                    disabled={loading}
-                  >
-                    <option value="" disabled>Select Diamond Clarity</option>
-                    {diamondClarities.map(clarity => (
-                      <option key={clarity._id} value={clarity._id}>{clarity.grade}</option>
-                    ))}
-                  </select>
-                  <img
-                    src={dropdownIcon}
-                    alt="dropdown"
-                    className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                  />
-                </div>
+            {/* <div className=""> */}
+            <div>
+              <label className="block lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B]">Diamond Type</label>
+              <div className="relative">
+                <select
+                  className="lg:w-[26.5rem] px-6 py-2 bg-[#F3F4F6] lg:text-base 2xl:text-[14px] appearance-none focus:outline-none focus:ring-0 text-[#64748B] rounded"
+                  value={selectedDiamondType}
+                  onChange={e => handleDiamondTypeChange(e.target.value)}
+                  disabled={loading}
+                >
+                  <option value="" disabled>Select Diamond Type</option>
+                  {diamondTypes.map(type => (
+                    <option key={type._id} value={type._id} className='lg:text-base 2xl:text-[15px]'>{type.type}</option>
+                  ))}
+                </select>
+                <img
+                  src={dropdownIcon}
+                  alt="dropdown"
+                  className="w-4 h-4 absolute left-96 top-1/2 -translate-y-1/2 pointer-events-none"
+                />
               </div>
             </div>
+            <div>
+              <label className="block lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B]">Diamond Clarity</label>
+              <div className="relative w-full mt-4">
+                <select
+                  className="lg:w-[26.5rem] px-6 py-2 lg:text-base 2xl:text-[14px] bg-[#F3F4F6] text-xs appearance-none focus:outline-none focus:ring-0 text-[#64748B] rounded"
+                  value={selectedDiamondClarity}
+                  onChange={e => handleDiamondClarityChange(e.target.value)}
+                  disabled={loading}
+                >
+                  <option value="" disabled>Select Diamond Clarity</option>
+                  {diamondClarities.map(clarity => (
+                    <option key={clarity._id} value={clarity._id} className='lg:text-base 2xl:text-[15px]'>{clarity.grade}</option>
+                  ))}
+                </select>
+                <img
+                  src={dropdownIcon}
+                  alt="dropdown"
+                  className="w-4 h-4 absolute left-96 top-1/2 -translate-y-1/2 pointer-events-none"
+                />
+              </div>
+            </div>
+            {/* </div> */}
           </div>
         </div>
         {/* Related Products */}
