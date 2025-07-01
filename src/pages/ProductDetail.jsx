@@ -273,7 +273,6 @@ const ProductDetails = () => {
                 />
               </div>
             </div> */}
-
             <div className="relative w-full">
               <label className="block lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B] mb-2">
                 Diamond Type
