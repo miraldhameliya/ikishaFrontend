@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import DiamondDetailsTable from './DiamondDetailTable';
 import AddOtherCharges from './AddOtherCharges';
-import { FaChevronDown } from 'react-icons/fa';
 import CreateVariants from './CreateVariants';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { addProduct, updateProduct, uploadImagesProduct } from '../../../redux/services/ProductService';
+import { addProduct, uploadImagesProduct } from '../../../redux/services/ProductService';
 import { allWOPShape } from '../../../redux/services/diamondShape';
 import { allWOPClarity } from '../../../redux/services/diamondClarityservice';
 import { allWOPSize } from '../../../redux/services/sizeService';
