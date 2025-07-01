@@ -11,6 +11,8 @@ const ProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const initialProduct = location.state?.product;
+  const [hasSelected, setHasSelected] = useState(false);
+
 
   // Color mapping for metal types
   const metalTypeColors = [
@@ -81,6 +83,8 @@ const ProductDetails = () => {
 
   const handleDiamondTypeChange = (id) => {
     setSelectedDiamondType(id);
+    setHasSelected(true);
+    setOpen(false);
     fetchUpdatedDetails(id, selectedDiamondClarity, selectedMetalType);
   };
 
@@ -117,6 +121,18 @@ const ProductDetails = () => {
   const diamondTypes = productDetails?.diamond_type || [];
   const diamondClarities = productDetails?.diamond_clarity || [];
   const metalTypes = productDetails?.metal_type || [];
+
+  const [open, setOpen] = useState(false);
+  const ref = useRef();
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // const scrollRef = useRef(null);
   // useEffect(() => {
@@ -236,7 +252,7 @@ const ProductDetails = () => {
               })}
             </div>
             {/* <div className=""> */}
-            <div>
+            {/* <div>
               <label className="block lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B] mb-2">Diamond Type</label>
               <div className="relative">
                 <select
@@ -256,6 +272,48 @@ const ProductDetails = () => {
                   className="w-4 h-4 absolute max-sm:right-6 lg:left-96 md:left-60 top-1/2 lg:-translate-y-1/1 -translate-y-1/2 pointer-events-none"
                 />
               </div>
+            </div> */}
+
+            <div className="relative w-full">
+              <label className="block lg:text-base 2xl:text-[18px] font-semibold text-[#1E293B] mb-2">
+                Diamond Type
+              </label>
+
+              <button
+                type="button"
+                className={`lg:w-[26.5rem] md:w-full w-full gap-2 px-6 py-2 bg-[#F3F4F6] rounded-lg flex items-center justify-between text-sm font-semibold text-[#64748B] hover:bg-gray-200 focus:outline-none ${open ? 'shadow-lg' : ''}`}
+                onClick={() => setOpen((prev) => !prev)}
+                disabled={loading}
+              >
+                <span>
+                  {hasSelected && selectedDiamondType
+                    ? diamondTypes.find((d) => d._id === selectedDiamondType)?.type
+                    : 'Select Diamond Type'}
+                </span>
+                <img
+                  src={dropdownIcon}
+                  alt="dropdown"
+                  className="w-4 h-4 pointer-events-none"
+                />
+              </button>
+
+              {open && (
+                <div className="absolute z-10 mt-1 lg:w-[26.5rem] md:w-full w-full bg-white rounded-lg max-h-40 overflow-y-auto shadow-md">
+                  {diamondTypes.length > 0 ? (
+                    diamondTypes.map((type) => (
+                      <div
+                        key={type._id}
+                        className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[#475569] text-sm"
+                        onClick={() => handleDiamondTypeChange(type._id)}
+                      >
+                        {type.type}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-sm text-gray-400">Loading types...</div>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <label className="block lg:text-base 2xl:text-[18px] font-semibold mb-2 text-[#1E293B]">Diamond Clarity</label>
